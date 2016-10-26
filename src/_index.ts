@@ -11,7 +11,7 @@ import * as ReactRedux from "react-redux";
 export {ReactRedux};
 
 import * as xlib from "xlib";
-export {xlib};
+//export {xlib};
 
 
 import * as ReactRouter from "react-router";
@@ -137,3 +137,6 @@ export let ReactRecaptcha: React.ComponentClass<{
     /**optional set the stoken parameter, which allows the captcha to be used from different domains, see reCAPTCHA secure-token*/
     stoken?: string;
 }> = require("react-google-recaptcha");
+
+/** common react components */
+export import reactCommonComponents = require("./react-common-components");

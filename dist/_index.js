@@ -8,7 +8,7 @@ exports.Redux = Redux;
 var ReactRedux = require("react-redux");
 exports.ReactRedux = ReactRedux;
 var xlib = require("xlib");
-exports.xlib = xlib;
+//export {xlib};
 var ReactRouter = require("react-router");
 exports.ReactRouter = ReactRouter;
 var ReactRouterRedux = require("react-router-redux");
@@ -77,4 +77,6 @@ render(
 ```
  */
 exports.ReactRecaptcha = require("react-google-recaptcha");
+/** common react components */
+exports.reactCommonComponents = require("./react-common-components");
 //# sourceMappingURL=_index.js.map
