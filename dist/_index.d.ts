@@ -71,18 +71,11 @@ export declare module reduxHelpers {
         history: any;
     };
     /**
-     * Novaleaf's "best practice" for using redux:  only bind states, NOT actions.
-     * for actions, create a bound-action and reference those action functions directly in their declaring modules.
+     * Novaleaf's "best practice" for using redux:
+     * for actions, the best way is not to use this, but to create a bound-action and reference those action functions directly in their declaring modules.
      * see the auth module for example code.
      */
-    function reduxConnect<TComponentClass extends typeof React.Component>(ComponentClass: TComponentClass, ...states: string[]): TComponentClass;
-    /**
-     * if you don't need to bind actions, don't use this.
-     */
-    function reduxConnectWithActions<TComponentClass extends typeof React.Component>(ComponentClass: TComponentClass, options?: {
-        states?: string[];
-        actions?: any[];
-    }): TComponentClass;
+    function reduxConnect<TComponentClass extends typeof React.Component>(ComponentClass: TComponentClass, states?: string[], actions?: {}[]): TComponentClass;
 }
 /** easy cookie query and manipulation.  https://www.npmjs.com/package/js-cookie */
 export import Cookie = require("js-cookie");

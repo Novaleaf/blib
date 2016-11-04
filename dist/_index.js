@@ -139,11 +139,11 @@ var reduxHelpers;
     }
     reduxHelpers.initReactReduxRouterApplication = initReactReduxRouterApplication;
     /**
-     * Novaleaf's "best practice" for using redux:  only bind states, NOT actions.
-     * for actions, create a bound-action and reference those action functions directly in their declaring modules.
+     * Novaleaf's "best practice" for using redux:
+     * for actions, the best way is not to use this, but to create a bound-action and reference those action functions directly in their declaring modules.
      * see the auth module for example code.
      */
-    function reduxConnect(ComponentClass, ...states) {
+    function reduxConnect(ComponentClass, states = [], actions = []) {
         //	//oriignal reference implementation		
         //return ReactRedux.connect(
         //	null,
@@ -153,55 +153,37 @@ var reduxHelpers;
         //		{ push: ReactRouterRedux.push }
         //	) //redux-binds, then includes the push() method for use in our _App Component
         //)(ComponentClass) as any as TComponentClass;
-        let toReturn = ReactRedux.connect(
-        /** accumulate the redux states we care about, will be in the output Props */
-            (reduxStoreState) => {
-            let targetStates = {};
-            __.forEach(states, (stateKey) => {
-                targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
-            });
-            return targetStates;
-        }, {})(ComponentClass);
-        return toReturn;
-    }
-    reduxHelpers.reduxConnect = reduxConnect;
-    /**
-     * if you don't need to bind actions, don't use this.
-     */
-    function reduxConnectWithActions(ComponentClass, options = {}) {
-        //	//oriignal reference implementation		
-        //return ReactRedux.connect(
-        //	null,
-        //	_.merge(
-        //		{},
-        //		reduxState.actions,
-        //		{ push: ReactRouterRedux.push }
-        //	) //redux-binds, then includes the push() method for use in our _App Component
-        //)(ComponentClass) as any as TComponentClass;
-        ///** accumulate the redux actions we care about, will be in the output Props */
-        let targetActions = {};
-        if (options.actions != null) {
-            __.forEach(options.actions, (value, index) => {
-                _.merge(targetActions, value);
+        //////////////////////////
+        ///   merge actions into 1 pojo
+        let mapDispatchToProps;
+        if (actions == null || actions.length == 0) {
+            mapDispatchToProps = {};
+        }
+        else {
+            mapDispatchToProps = {};
+            __.forEach(actions, (value, index) => {
+                _.merge(mapDispatchToProps, value);
             });
         }
-        let toReturn = ReactRedux.connect(
-        /** accumulate the redux states we care about, will be in the output Props */
-            (reduxStoreState) => {
-            if (options.states == null) {
-                return null;
-            }
-            let targetStates = {};
-            __.forEach(options.states, (stateKey) => {
-                targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
-            });
-            return targetStates;
-        }, 
-        //null,
-        targetActions)(ComponentClass);
-        return toReturn;
+        //////////////////////////
+        /// construct state map fcn, if any
+        let mapStatesToProps;
+        if (states == null || states.length == 0) {
+            mapStatesToProps = null;
+        }
+        else {
+            mapStatesToProps = (reduxStoreState) => {
+                let targetStates = {};
+                __.forEach(states, (stateKey) => {
+                    targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
+                });
+                return targetStates;
+            };
+        }
+        //do redux Connect
+        return ReactRedux.connect(mapStatesToProps, mapDispatchToProps)(ComponentClass);
     }
-    reduxHelpers.reduxConnectWithActions = reduxConnectWithActions;
+    reduxHelpers.reduxConnect = reduxConnect;
 })(reduxHelpers = exports.reduxHelpers || (exports.reduxHelpers = {}));
 /** easy cookie query and manipulation.  https://www.npmjs.com/package/js-cookie */
 exports.Cookie = require("js-cookie");

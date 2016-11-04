@@ -44,9 +44,9 @@ import __ = xlib.lolo;
 
 export module reactHelpers {
 
-    /**
-     *  calculate the current route of the SPA by looking at window.location.hash
-     */
+	/**
+	 *  calculate the current route of the SPA by looking at window.location.hash
+	 */
 	export function currentSpaRoute() {
 		let _currentRoute = xlib.stringHelper.removeBefore(window.location.hash, "#").toLowerCase();
 		_currentRoute = xlib.stringHelper.removeAfter(_currentRoute, "?");
@@ -54,10 +54,10 @@ export module reactHelpers {
 	}
 
 
-    /**
-     *  helpers to easily bind to the React.Component lifecycle methods (in a  type strong way)
-     * example use:  ```class MyComponent extends React.Component<any,any>{componentDidMount = componentLifecycleHelpers.bindComponentWillMount(this,()=>{console.log("mounted");});}```
-     */
+	/**
+	 *  helpers to easily bind to the React.Component lifecycle methods (in a  type strong way)
+	 * example use:  ```class MyComponent extends React.Component<any,any>{componentDidMount = componentLifecycleHelpers.bindComponentWillMount(this,()=>{console.log("mounted");});}```
+	 */
 	export module componentLifecycle {
 		export function bindComponentWillMount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
 			let boundFcn = fcn.bind(target);
@@ -126,10 +126,10 @@ export module reduxHelpers {
 	//    (reduxStore: Redux.Store<any>): Promise<void>;
 	//}
 
-    /**
-     * handles all the bootstrapping (initialization) of react+redux+reactRouterRedux applications.   just make sure you pass in your redux-states in the "IReduxStateModule" format to the function parameters.
-     * @param _ezStates
-     */
+	/**
+	 * handles all the bootstrapping (initialization) of react+redux+reactRouterRedux applications.   just make sure you pass in your redux-states in the "IReduxStateModule" format to the function parameters.
+	 * @param _ezStates
+	 */
 	export function initReactReduxRouterApplication(..._ezStates: IReduxStateModule[]) {
 
 
@@ -185,14 +185,14 @@ export module reduxHelpers {
 			state._init.initializeStart(_rawReducers);
 		});
 		_rawReducers["routing"] = ReactRouterRedux.routerReducer; //include our routing module
-        /**
-         *  //create a single reducer function from our components
-         */
+		/**
+		 *  //create a single reducer function from our components
+		 */
 		const reducer = Redux.combineReducers(_rawReducers);
 
-        /**
-         * the whole state tree of the app  use actions to manipulate 
-         */
+		/**
+		 * the whole state tree of the app  use actions to manipulate 
+		 */
 		const reduxStore = Redux.createStore(reducer,
 			composeEnhancers(middleware)
 		);
@@ -208,13 +208,14 @@ export module reduxHelpers {
 	}
 
 	/**
-	 * Novaleaf's "best practice" for using redux:  only bind states, NOT actions.
-	 * for actions, create a bound-action and reference those action functions directly in their declaring modules.
+	 * Novaleaf's "best practice" for using redux:  
+	 * for actions, the best way is not to use this, but to create a bound-action and reference those action functions directly in their declaring modules.
 	 * see the auth module for example code.
 	 */
 	export function reduxConnect<TComponentClass extends typeof React.Component>(
 		ComponentClass: TComponentClass,
-		...states:string[],
+		states: string[] = [],
+		actions: {}[] = [],
 	) {
 
 		//	//oriignal reference implementation		
@@ -227,74 +228,40 @@ export module reduxHelpers {
 		//	) //redux-binds, then includes the push() method for use in our _App Component
 		//)(ComponentClass) as any as TComponentClass;
 
-
-		let toReturn = ReactRedux.connect(
-			/** accumulate the redux states we care about, will be in the output Props */
-			(reduxStoreState: any) => {
+		//////////////////////////
+		///   merge actions into 1 pojo
+		let mapDispatchToProps: any;
+		if (actions == null || actions.length == 0) {
+			mapDispatchToProps = {};
+		} else {
+			mapDispatchToProps = {};
+			__.forEach(actions, (value, index) => {
+				_.merge(mapDispatchToProps, value);
+			});
+		}
+		//////////////////////////
+		/// construct state map fcn, if any
+		let mapStatesToProps: any;
+		if (states == null || states.length == 0) {
+			mapStatesToProps = null;
+		} else {
+			mapStatesToProps = (reduxStoreState: any) => {
 				let targetStates: any = {};
 				__.forEach(states, (stateKey) => {
 					targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
 				});
 				return targetStates;
-			},
-			{},
-		)(ComponentClass) as any as TComponentClass;
-
-		return toReturn;
-
-	}
-	/**
-	 * if you don't need to bind actions, don't use this.  
-	 */
-	export function reduxConnectWithActions<TComponentClass extends typeof React.Component>(
-		ComponentClass: TComponentClass,
-		options: {
-			states?: string[],
-			actions?: any[],
-		} = {},
-	) {
-
-		//	//oriignal reference implementation		
-		//return ReactRedux.connect(
-		//	null,
-		//	_.merge(
-		//		{},
-		//		reduxState.actions,
-		//		{ push: ReactRouterRedux.push }
-		//	) //redux-binds, then includes the push() method for use in our _App Component
-		//)(ComponentClass) as any as TComponentClass;
-
-
-
-		///** accumulate the redux actions we care about, will be in the output Props */
-		let targetActions: any = {};
-		if (options.actions != null) {
-			__.forEach(options.actions, (value, index) => {
-				_.merge(targetActions, value);
-			});
+			};
 		}
 
+		//do redux Connect
 
-		let toReturn = ReactRedux.connect(
-			/** accumulate the redux states we care about, will be in the output Props */
-			(reduxStoreState: any) => {
-				if (options.states == null) {
-					return null;
-				}
-				let targetStates: any = {};					
-					__.forEach(options.states, (stateKey) => {
-						targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
-					});				
-				return targetStates;
-			},
-			//null,
-			targetActions as any,
-			//_.merge({}, reduxState.actions, { push: ReactRouterRedux.push }),
-		)(ComponentClass) as any as TComponentClass;
+		return ReactRedux.connect(mapStatesToProps, mapDispatchToProps)(ComponentClass) as TComponentClass;
 
-		return toReturn;
+		
 
 	}
+
 }
 
 /** easy cookie query and manipulation.  https://www.npmjs.com/package/js-cookie */
@@ -354,12 +321,12 @@ function onChange(value) {
 }
 
 render(
-    <ReCAPTCHA
-      ref="recaptcha"
-      sitekey="Your client site key"
-      onChange={onChange}
-    />,
-    document.body
+	<ReCAPTCHA
+	  ref="recaptcha"
+	  sitekey="Your client site key"
+	  onChange={onChange}
+	/>,
+	document.body
 );
 ```
  */
