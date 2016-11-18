@@ -1,6 +1,6 @@
 {
   "name": "blib",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "browser specific extensions to the xlib library",
   "main": "./dist/_index.js",
   "types": "./dist/_index.d.ts",
