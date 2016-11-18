@@ -1,5 +1,3 @@
-/// <reference types="react" />
-/// <reference types="google.analytics" />
 import * as React from "react";
 export { React };
 import * as ReactDom from "react-dom";
@@ -82,7 +80,7 @@ export import Cookie = require("js-cookie");
 /**
  * if you have google analytics installed, this allows you to call it.  if ga isn't installed, any calls to this are nooped
  */
-export declare var googleAnalytics: typeof ga;
+export declare var googleAnalytics: any;
 /**
  * helper for SPA's to record a pagehit, using the pathname+hash as the page id.
  */

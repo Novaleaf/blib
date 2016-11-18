@@ -267,11 +267,11 @@ export module reduxHelpers {
 /** easy cookie query and manipulation.  https://www.npmjs.com/package/js-cookie */
 export import Cookie = require("js-cookie");
 
-
+declare const ga: any;
 /**
  * if you have google analytics installed, this allows you to call it.  if ga isn't installed, any calls to this are nooped
  */
-export var googleAnalytics: typeof ga = <any>function (...args: any[]) {
+export var googleAnalytics: any = <any>function (...args: any[]) {
 	if (typeof ga === "undefined") {
 		return;
 	}

@@ -1,5 +1,3 @@
-/// <reference types="react" />
-/// <reference types="bluebird" />
 import blib = require("./_index");
 import xlib = require("xlib");
 import Promise = xlib.promise.bluebird;
