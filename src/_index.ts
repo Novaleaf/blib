@@ -23,13 +23,173 @@ export { ReduxLogger };
 
 //export let ReduxLogger: {} = require("redux-logger");
 
-//import ReactJsf = require("react-jsonschema-form");
 
-//export let ReactJsfForm = ReactJsf.default;
-//let Form = ReactJsf.Form;
+const log = new xlib.logging.Logger(__filename);
 
-import ReactJsfForm from "react-jsonschema-form";
-export { ReactJsfForm };
+//import ReactJsfForm from "react-jsonschema-form";
+//export { ReactJsfForm };
+/** unfortuantely due to stupid "defaults" settings, we can't easily export this for people to use.   need to put our own definitions in place */
+//import __ReactJsf = require("react-jsonschema-form");
+import __ReactJsf_Form from "react-jsonschema-form";
+
+/**
+ * the npm module "react-jsonschema-form"
+ */
+export module ReactJsf {
+
+	/**
+	 *  helper will construct a Jsf Schema from a xlib DataSchema
+	 * @param dataSchema
+	 */
+	export function constructJsfSchemaFromDataSchema(dataSchema: xlib.designPatterns.dataSchema.ISchema) {
+
+
+		let jsfSchema: IObjectSchema = {
+			type: "object",
+			title: dataSchema.db.kind,
+			properties: {},
+		}
+
+		let uiSchema: IUiSchema = {};
+
+		//copy props
+		xlib.lolo.forEach(dataSchema.properties, (prop, key) => {
+
+
+			if (prop.isHidden === true) {
+				//not for user input
+				return;
+			}
+
+
+			//compute jsfSchema for prop
+			let jsfType: string;
+			switch (prop.dbType) {
+				case "double":
+					jsfType = "number";
+					break;
+				case "integer":
+					jsfType = "integer";
+					break;
+				case "string":
+					jsfType = "string";
+					break;
+				case "none":
+					throw log.error("DEV TODO: dbType of none is invalid, need to modify to include a seperate prop value to show not storing");
+				//break;
+				default:
+					throw log.error("unhandled prop type:" + prop.dbType, { key, prop });
+
+			}
+
+			let jsfProp: IPropSchema = {
+				type: jsfType as any,
+				title: key,
+				//format: prop.inputFormat,
+			}
+
+			jsfSchema.properties[key] = jsfProp;
+
+			//compute ui schema
+			if (prop.inputWidget != null) {
+				uiSchema[key] = {
+					"ui:widget": prop.inputWidget,
+				};
+			}
+
+
+		});
+
+
+
+
+
+		return { jsfSchema, uiSchema };
+
+	}
+
+
+	export interface FormProps {
+		schema: IObjectSchema | IArraySchema;
+		uiSchema?: {};
+		formData?: any;
+		widgets?: {};
+		fields?: {};
+		validate?: (formData: any, errors: any) => any;
+		onChange?: (e: IChangeEvent) => any;
+		onError?: (e: any) => any;
+		onSubmit?: (e: any) => any;
+		liveValidate?: boolean;
+		safeRenderCompletion?: boolean;
+	}
+
+	export interface IChangeEvent {
+		edit: boolean;
+		formData: any;
+		errors: any[];
+		errorSchema: any;
+		idSchema: any;
+		status: string;
+	}
+
+	export interface IUiSchema {
+		[propName: string]: IUiSchemaField;
+	}
+
+	export interface IUiSchemaField {
+		"ui:widget": string;
+		"ui:readonly"?: boolean;
+		"ui:options"?: { backgroundColor?: string }
+		"ui:autofocus"?: boolean;
+	}
+	export interface IUiSchemaField_String extends IUiSchemaField {
+		"ui:widget": "textarea" | "password" | "color" | "text";
+		format?: "email" | "uri" | "data-url" | "date" | "date-time";
+	}
+	export interface IUiSchemaField_Boolean extends IUiSchemaField {
+		"ui:widget": "radio" | "select" | "checkbox";
+
+	}
+
+
+
+	export interface IObjectSchema {
+
+		type: "object";
+		title?: string;
+		properties: { [name: string]: IObjectSchema | IPropSchema | IRefSchema | IArraySchema };
+
+		/** alt definitions used as reference types for embeded schema*/
+		definitions?: { [name: string]: IObjectSchema };
+	}
+
+	export interface IArraySchema {
+		type: "array";
+		title?: string;
+		items: IObjectSchema | IRefSchema
+	}
+
+	/** optional references to definitions found under a "definitions" node */
+	export interface IRefSchema {
+		title?: string;
+		"$ref": string;
+	}
+
+	export interface IPropSchema {
+		type: "string" | "number" | "integer";
+		title?: string;
+		format?: string;
+	}
+
+
+	export declare class _Form extends React.Component<FormProps, any> { }
+
+
+
+	export const Form: typeof _Form = __ReactJsf_Form as any;
+}
+
+
 
 export let ReduxUndo: {
 	undoable: <T>(reducerIn: Redux.Reducer<T>) => Redux.Reducer<T>;
@@ -258,7 +418,7 @@ export module reduxHelpers {
 
 		return ReactRedux.connect(mapStatesToProps, mapDispatchToProps)(ComponentClass) as TComponentClass;
 
-		
+
 
 	}
 

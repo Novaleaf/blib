@@ -16,11 +16,69 @@ exports.ReactRouterRedux = ReactRouterRedux;
 const ReduxLogger = require("redux-logger");
 exports.ReduxLogger = ReduxLogger;
 //export let ReduxLogger: {} = require("redux-logger");
-//import ReactJsf = require("react-jsonschema-form");
-//export let ReactJsfForm = ReactJsf.default;
-//let Form = ReactJsf.Form;
+const log = new xlib.logging.Logger(__filename);
+//import ReactJsfForm from "react-jsonschema-form";
+//export { ReactJsfForm };
+/** unfortuantely due to stupid "defaults" settings, we can't easily export this for people to use.   need to put our own definitions in place */
+//import __ReactJsf = require("react-jsonschema-form");
 const react_jsonschema_form_1 = require("react-jsonschema-form");
-exports.ReactJsfForm = react_jsonschema_form_1.default;
+/**
+ * the npm module "react-jsonschema-form"
+ */
+var ReactJsf;
+(function (ReactJsf) {
+    /**
+     *  helper will construct a Jsf Schema from a xlib DataSchema
+     * @param dataSchema
+     */
+    function constructJsfSchemaFromDataSchema(dataSchema) {
+        let jsfSchema = {
+            type: "object",
+            title: dataSchema.db.kind,
+            properties: {},
+        };
+        let uiSchema = {};
+        //copy props
+        xlib.lolo.forEach(dataSchema.properties, (prop, key) => {
+            if (prop.isHidden === true) {
+                //not for user input
+                return;
+            }
+            //compute jsfSchema for prop
+            let jsfType;
+            switch (prop.dbType) {
+                case "double":
+                    jsfType = "number";
+                    break;
+                case "integer":
+                    jsfType = "integer";
+                    break;
+                case "string":
+                    jsfType = "string";
+                    break;
+                case "none":
+                    throw log.error("DEV TODO: dbType of none is invalid, need to modify to include a seperate prop value to show not storing");
+                //break;
+                default:
+                    throw log.error("unhandled prop type:" + prop.dbType, { key, prop });
+            }
+            let jsfProp = {
+                type: jsfType,
+                title: key,
+            };
+            jsfSchema.properties[key] = jsfProp;
+            //compute ui schema
+            if (prop.inputWidget != null) {
+                uiSchema[key] = {
+                    "ui:widget": prop.inputWidget,
+                };
+            }
+        });
+        return { jsfSchema, uiSchema };
+    }
+    ReactJsf.constructJsfSchemaFromDataSchema = constructJsfSchemaFromDataSchema;
+    ReactJsf.Form = react_jsonschema_form_1.default;
+})(ReactJsf = exports.ReactJsf || (exports.ReactJsf = {}));
 exports.ReduxUndo = require("redux-undo");
 var __ = xlib.lolo;
 var reactHelpers;

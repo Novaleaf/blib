@@ -14,8 +14,87 @@ import * as ReactRouterRedux from "react-router-redux";
 export { ReactRouterRedux };
 import * as ReduxLogger from "redux-logger";
 export { ReduxLogger };
-import ReactJsfForm from "react-jsonschema-form";
-export { ReactJsfForm };
+/**
+ * the npm module "react-jsonschema-form"
+ */
+export declare module ReactJsf {
+    /**
+     *  helper will construct a Jsf Schema from a xlib DataSchema
+     * @param dataSchema
+     */
+    function constructJsfSchemaFromDataSchema(dataSchema: xlib.designPatterns.dataSchema.ISchema): {
+        jsfSchema: IObjectSchema;
+        uiSchema: IUiSchema;
+    };
+    interface FormProps {
+        schema: IObjectSchema | IArraySchema;
+        uiSchema?: {};
+        formData?: any;
+        widgets?: {};
+        fields?: {};
+        validate?: (formData: any, errors: any) => any;
+        onChange?: (e: IChangeEvent) => any;
+        onError?: (e: any) => any;
+        onSubmit?: (e: any) => any;
+        liveValidate?: boolean;
+        safeRenderCompletion?: boolean;
+    }
+    interface IChangeEvent {
+        edit: boolean;
+        formData: any;
+        errors: any[];
+        errorSchema: any;
+        idSchema: any;
+        status: string;
+    }
+    interface IUiSchema {
+        [propName: string]: IUiSchemaField;
+    }
+    interface IUiSchemaField {
+        "ui:widget": string;
+        "ui:readonly"?: boolean;
+        "ui:options"?: {
+            backgroundColor?: string;
+        };
+        "ui:autofocus"?: boolean;
+    }
+    interface IUiSchemaField_String extends IUiSchemaField {
+        "ui:widget": "textarea" | "password" | "color" | "text";
+        format?: "email" | "uri" | "data-url" | "date" | "date-time";
+    }
+    interface IUiSchemaField_Boolean extends IUiSchemaField {
+        "ui:widget": "radio" | "select" | "checkbox";
+    }
+    interface IObjectSchema {
+        type: "object";
+        title?: string;
+        properties: {
+            [name: string]: IObjectSchema | IPropSchema | IRefSchema | IArraySchema;
+        };
+        /** alt definitions used as reference types for embeded schema*/
+        definitions?: {
+            [name: string]: IObjectSchema;
+        };
+    }
+    interface IArraySchema {
+        type: "array";
+        title?: string;
+        items: IObjectSchema | IRefSchema;
+    }
+    /** optional references to definitions found under a "definitions" node */
+    interface IRefSchema {
+        title?: string;
+        "$ref": string;
+    }
+    interface IPropSchema {
+        type: "string" | "number" | "integer";
+        title?: string;
+        format?: string;
+    }
+    class _Form extends React.Component<FormProps, any> {
+    }
+    const Form: typeof _Form;
+}
 export declare let ReduxUndo: {
     undoable: <T>(reducerIn: Redux.Reducer<T>) => Redux.Reducer<T>;
 };
