@@ -1,4 +1,6 @@
 ﻿
+
+
 import * as React from "react";
 export { React };
 
@@ -12,7 +14,7 @@ export { ReactRedux };
 
 import * as xlib from "xlib";
 export { xlib };
-
+import _ = xlib.lodash;
 
 import * as ReactRouter from "react-router";
 export { ReactRouter };

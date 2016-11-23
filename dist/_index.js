@@ -9,6 +9,7 @@ const ReactRedux = require("react-redux");
 exports.ReactRedux = ReactRedux;
 const xlib = require("xlib");
 exports.xlib = xlib;
+var _ = xlib.lodash;
 const ReactRouter = require("react-router");
 exports.ReactRouter = ReactRouter;
 const ReactRouterRedux = require("react-router-redux");
