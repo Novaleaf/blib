@@ -12,6 +12,7 @@ export { ReactRedux };
 
 import * as xlib from "xlib";
 export { xlib };
+import _ = xlib.lodash;
 
 
 import * as ReactRouter from "react-router";
@@ -20,6 +21,12 @@ import * as ReactRouterRedux from "react-router-redux";
 export { ReactRouterRedux };
 import * as ReduxLogger from "redux-logger";
 export { ReduxLogger };
+
+// /** http://adazzle.github.io/react-data-grid/  */
+// export import ReactDataGrid = require("react-data-grid");
+// export import ReactDataGridPlugins = require("react-data-grid/addons");
+export import fixedDataTable = require("fixed-data-table");
+
 
 //export let ReduxLogger: {} = require("redux-logger");
 
@@ -31,6 +38,8 @@ const log = new xlib.logging.Logger(__filename);
 /** unfortuantely due to stupid "defaults" settings, we can't easily export this for people to use.   need to put our own definitions in place */
 //import __ReactJsf = require("react-jsonschema-form");
 import __ReactJsf_Form from "react-jsonschema-form";
+
+
 
 /**
  * the npm module "react-jsonschema-form"
@@ -74,6 +83,9 @@ export module ReactJsf {
 				case "string":
 					jsfType = "string";
 					break;
+				case "boolean":
+					jsfType = "boolean";
+					break;
 				case "none":
 					throw log.error("DEV TODO: dbType of none is invalid, need to modify to include a seperate prop value to show not storing");
 				//break;
@@ -85,6 +97,7 @@ export module ReactJsf {
 			let jsfProp: IPropSchema = {
 				type: jsfType as any,
 				title: key,
+				required: prop.isOptional !== true,
 				//format: prop.inputFormat,
 			}
 
@@ -176,9 +189,12 @@ export module ReactJsf {
 	}
 
 	export interface IPropSchema {
-		type: "string" | "number" | "integer";
+		type: string;// "string" | "number" | "integer" | "boolean";
 		title?: string;
 		format?: string;
+		required?: boolean;
+		readonly?: boolean;
+		displayLabel?: boolean;
 	}
 
 
@@ -202,7 +218,11 @@ import Promise = xlib.promise.bluebird;
 import __ = xlib.lolo;
 
 
+
 export module reactHelpers {
+
+	
+
 
 	/**
 	 *  calculate the current route of the SPA by looking at window.location.hash

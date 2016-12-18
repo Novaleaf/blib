@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import * as React from "react";
 export { React };
 import * as ReactDom from "react-dom";
@@ -14,6 +15,7 @@ import * as ReactRouterRedux from "react-router-redux";
 export { ReactRouterRedux };
 import * as ReduxLogger from "redux-logger";
 export { ReduxLogger };
+export import fixedDataTable = require("fixed-data-table");
 /**
  * the npm module "react-jsonschema-form"
  */
@@ -87,9 +89,12 @@ export declare module ReactJsf {
         "$ref": string;
     }
     interface IPropSchema {
-        type: "string" | "number" | "integer";
+        type: string;
         title?: string;
         format?: string;
+        required?: boolean;
+        readonly?: boolean;
+        displayLabel?: boolean;
     }
     class _Form extends React.Component<FormProps, any> {
     }

@@ -48,7 +48,7 @@ export interface RouterProps {
 	params: any;
 	route: {
 		path: string;
-		component: (props:any, context:any) => any;
+		component: (props: any, context: any) => any;
 	};
 	routeParams: any;
 	routes: any[];
@@ -82,7 +82,7 @@ export class EzModal extends React.Component<{ ref: string }, {
 	showOptions?: IEzModalShowOptions
 }>{
 
-	constructor(props:any) {
+	constructor(props: any) {
 		super(props);
 		this.state = { isOpen: false, title: undefined, message: undefined, details: undefined, showOptions: {} };
 	}
@@ -101,17 +101,17 @@ export class EzModal extends React.Component<{ ref: string }, {
 		let onHideClick: Function;
 
 		if (this.state.showOptions == null) {
-			throw log.error("showOptions null", { state:this.state });
+			throw log.error("showOptions null", { state: this.state });
 		}
-		
+
 		if (this.state.showOptions.confirmButtonText == null) {
-			buttonJsx = <Button className="btn-primary" onClick= { this.CloseConfirm.bind(this) }> Close </Button>;
+			buttonJsx = <Button className="btn-primary" onClick={this.CloseConfirm.bind(this)}> Close </Button>;
 			onHideClick = this.CloseConfirm.bind(this);
 		} else {
 			buttonJsx = <span>
-				<Button onClick={ this.CloseCancel.bind(this) }>Cancel </Button>
-					<Button className= "btn-primary" onClick= { this.CloseConfirm.bind(this) } > { this.state.showOptions.confirmButtonText } </Button>
-						</span>
+				<Button onClick={this.CloseCancel.bind(this)}>Cancel </Button>
+				<Button className="btn-primary" onClick={this.CloseConfirm.bind(this)} > {this.state.showOptions.confirmButtonText} </Button>
+			</span>
 				;
 
 			onHideClick = this.CloseCancel.bind(this);
@@ -121,26 +121,26 @@ export class EzModal extends React.Component<{ ref: string }, {
 		//TODO:  how to pass args to function?
 		return (
 			<div>
-			<Modal show={ this.state.isOpen } onHide= { onHideClick } backdrop= { this.state.showOptions.nonModal === true ? true : "static" } >
+				<Modal show={this.state.isOpen} onHide={onHideClick} backdrop={this.state.showOptions.nonModal === true ? true : "static"} >
 
-				<Modal.Header closeButton>
-				<Modal.Title>{ this.state.title } </Modal.Title>
-				</Modal.Header>
-				< Modal.Body >
-				<div className="row" >
-					<div className="col-sm-12" > { this.state.message } </div>
-						< div className= "col-sm-12" > <pre>{ this.state.details } </pre></div >
-							</div>
-							</Modal.Body>
-							< Modal.Footer >
-							{ buttonJsx }
-							</Modal.Footer>
-							</Modal>
-							</div>
+					<Modal.Header closeButton>
+						<Modal.Title>{this.state.title} </Modal.Title>
+					</Modal.Header>
+					< Modal.Body >
+						<div className="row" >
+							<div className="col-sm-12" > {this.state.message} </div>
+							< div className="col-sm-12" > <pre>{this.state.details} </pre></div >
+						</div>
+					</Modal.Body>
+					< Modal.Footer >
+						{buttonJsx}
+					</Modal.Footer>
+				</Modal>
+			</div>
 		);
 	}
 
-	private _modalClosePromise: xlib.promise._deprecated.IExposedPromise<void>|null=null;
+	private _modalClosePromise: xlib.promise._deprecated.IExposedPromise<void> | null = null;
 
 	public Show(title: string | JSX.Element, message: string | JSX.Element, details?: string | JSX.Element, options?: IEzModalShowOptions) {
 		//log.assert(false);
@@ -261,27 +261,27 @@ export module StripeCheckout {
 			return (
 				<StripeCheckout
 					ref="reactStripeCheckout"
-			token = { this._onToken.bind(this) }
-			stripeKey = { this.props.configOptions.stripeKey }
-			billingAddress = { showOptions.billingAddressCheck }
-			shippingAddress = { showOptions.shippingAddressCheck }
-			currency = "USD"
-			email = { showOptions.email }
-			zipCode = { showOptions.zipCodeCheck }
-			alipay = { showOptions.allowAlipay }
-			alipayReusable = { showOptions.allowAlipayReusable }
-			bitcoin = { showOptions.allowBitcoin }
-			name = { showOptions.name }
-			description = { showOptions.description }
-			panelLabel = { showOptions.payButtonLabel }
-			image = { showOptions.imageUrl }
-			allowRememberMe = { showOptions.allowRememberMe }
-			reconfigureOnUpdates = { true}
-			reconfigureOnUpdate = { true}
-			amount = { showOptions.amount }
-			closed = { this._checkoutClosed.bind(this) }
-				> <button style={ { display: "none" } }></button>
-					</StripeCheckout>
+					token={this._onToken.bind(this)}
+					stripeKey={this.props.configOptions.stripeKey}
+					billingAddress={showOptions.billingAddressCheck}
+					shippingAddress={showOptions.shippingAddressCheck}
+					currency="USD"
+					email={showOptions.email}
+					zipCode={showOptions.zipCodeCheck}
+					alipay={showOptions.allowAlipay}
+					alipayReusable={showOptions.allowAlipayReusable}
+					bitcoin={showOptions.allowBitcoin}
+					name={showOptions.name}
+					description={showOptions.description}
+					panelLabel={showOptions.payButtonLabel}
+					image={showOptions.imageUrl}
+					allowRememberMe={showOptions.allowRememberMe}
+					reconfigureOnUpdates={true}
+					reconfigureOnUpdate={true}
+					amount={showOptions.amount}
+					closed={this._checkoutClosed.bind(this)}
+					> <button style={{ display: "none" }}></button>
+				</StripeCheckout>
 			);
 		}
 		/**
@@ -319,4 +319,67 @@ export module StripeCheckout {
 		}
 
 	}
+}
+
+
+
+/**
+ * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
+ * great for async callback operations
+ */
+export class SpinnerButton extends React.Component<{
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>,
+	/** set to true to force the button to be disabled */
+	isDisabled?: boolean
+}, { onClickPromise: Promise<any>, isMounted:boolean }>{
+
+	constructor(props: any) {
+		super(props);
+		this.state = {
+			onClickPromise: Promise.resolve(),
+			isMounted:false,
+		};
+
+// let state = this.state;
+// let partialState : Partial<typeof state> = {isMounted:false};
+
+		blib.reactHelpers.componentLifecycle.bindComponentWillUnmount(this, () => { this.setState({isMounted:false} as any) });
+		blib.reactHelpers.componentLifecycle.bindComponentWillMount(this, () =>{ this.setState({isMounted:true} as any) });
+	}
+
+
+	render() {
+
+		return (
+
+			<button
+				onClick={this._onClick}
+				disabled={this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true}
+				>
+				<blib.ReactLoader loaded={(this.state.onClickPromise.isResolved())} />
+				{this.props.children}
+
+			</button>
+
+		);
+
+	}
+
+	private _onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+
+		let onClickPromise = this.props.onClick(event);
+
+		this.setState({ onClickPromise } as any);
+
+		onClickPromise.finally(() => {
+
+			if (this.state.isMounted === true) {
+				this.forceUpdate();
+			}
+		});
+	};
+
+
+
 }

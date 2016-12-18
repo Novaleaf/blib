@@ -38,40 +38,37 @@ class EzModal extends React.Component {
             throw log.error("showOptions null", { state: this.state });
         }
         if (this.state.showOptions.confirmButtonText == null) {
-            buttonJsx = React.createElement(Button, {className: "btn-primary", onClick: this.CloseConfirm.bind(this)}, " Close ");
+            buttonJsx = React.createElement(Button, { className: "btn-primary", onClick: this.CloseConfirm.bind(this) }, " Close ");
             onHideClick = this.CloseConfirm.bind(this);
         }
         else {
-            buttonJsx = React.createElement("span", null, 
-                React.createElement(Button, {onClick: this.CloseCancel.bind(this)}, "Cancel "), 
-                React.createElement(Button, {className: "btn-primary", onClick: this.CloseConfirm.bind(this)}, 
-                    " ", 
-                    this.state.showOptions.confirmButtonText, 
+            buttonJsx = React.createElement("span", null,
+                React.createElement(Button, { onClick: this.CloseCancel.bind(this) }, "Cancel "),
+                React.createElement(Button, { className: "btn-primary", onClick: this.CloseConfirm.bind(this) },
+                    " ",
+                    this.state.showOptions.confirmButtonText,
                     " "));
             onHideClick = this.CloseCancel.bind(this);
         }
         //TODO:  how to pass args to function?
-        return (React.createElement("div", null, 
-            React.createElement(Modal, {show: this.state.isOpen, onHide: onHideClick, backdrop: this.state.showOptions.nonModal === true ? true : "static"}, 
-                React.createElement(Modal.Header, {closeButton: true}, 
-                    React.createElement(Modal.Title, null, 
-                        this.state.title, 
-                        " ")
-                ), 
-                React.createElement(Modal.Body, null, 
-                    React.createElement("div", {className: "row"}, 
-                        React.createElement("div", {className: "col-sm-12"}, 
-                            " ", 
-                            this.state.message, 
-                            " "), 
-                        React.createElement("div", {className: "col-sm-12"}, 
-                            " ", 
-                            React.createElement("pre", null, 
-                                this.state.details, 
-                                " ")))
-                ), 
-                React.createElement(Modal.Footer, null, buttonJsx))
-        ));
+        return (React.createElement("div", null,
+            React.createElement(Modal, { show: this.state.isOpen, onHide: onHideClick, backdrop: this.state.showOptions.nonModal === true ? true : "static" },
+                React.createElement(Modal.Header, { closeButton: true },
+                    React.createElement(Modal.Title, null,
+                        this.state.title,
+                        " ")),
+                React.createElement(Modal.Body, null,
+                    React.createElement("div", { className: "row" },
+                        React.createElement("div", { className: "col-sm-12" },
+                            " ",
+                            this.state.message,
+                            " "),
+                        React.createElement("div", { className: "col-sm-12" },
+                            " ",
+                            React.createElement("pre", null,
+                                this.state.details,
+                                " ")))),
+                React.createElement(Modal.Footer, null, buttonJsx))));
     }
     Show(title, message, details, options) {
         //log.assert(false);
@@ -155,9 +152,9 @@ var StripeCheckout;
         }
         render() {
             let showOptions = this.state.showOptions;
-            return (React.createElement(StripeCheckout, {ref: "reactStripeCheckout", token: this._onToken.bind(this), stripeKey: this.props.configOptions.stripeKey, billingAddress: showOptions.billingAddressCheck, shippingAddress: showOptions.shippingAddressCheck, currency: "USD", email: showOptions.email, zipCode: showOptions.zipCodeCheck, alipay: showOptions.allowAlipay, alipayReusable: showOptions.allowAlipayReusable, bitcoin: showOptions.allowBitcoin, name: showOptions.name, description: showOptions.description, panelLabel: showOptions.payButtonLabel, image: showOptions.imageUrl, allowRememberMe: showOptions.allowRememberMe, reconfigureOnUpdates: true, reconfigureOnUpdate: true, amount: showOptions.amount, closed: this._checkoutClosed.bind(this)}, 
-                " ", 
-                React.createElement("button", {style: { display: "none" }})));
+            return (React.createElement(StripeCheckout, { ref: "reactStripeCheckout", token: this._onToken.bind(this), stripeKey: this.props.configOptions.stripeKey, billingAddress: showOptions.billingAddressCheck, shippingAddress: showOptions.shippingAddressCheck, currency: "USD", email: showOptions.email, zipCode: showOptions.zipCodeCheck, alipay: showOptions.allowAlipay, alipayReusable: showOptions.allowAlipayReusable, bitcoin: showOptions.allowBitcoin, name: showOptions.name, description: showOptions.description, panelLabel: showOptions.payButtonLabel, image: showOptions.imageUrl, allowRememberMe: showOptions.allowRememberMe, reconfigureOnUpdates: true, reconfigureOnUpdate: true, amount: showOptions.amount, closed: this._checkoutClosed.bind(this) },
+                " ",
+                React.createElement("button", { style: { display: "none" } })));
         }
         /**
          *  called if manually closed by user, or after onToken() is called
@@ -190,4 +187,37 @@ var StripeCheckout;
     }
     StripeCheckout_1.EzStripeCheckout = EzStripeCheckout;
 })(StripeCheckout = exports.StripeCheckout || (exports.StripeCheckout = {}));
+/**
+ * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
+ * great for async callback operations
+ */
+class SpinnerButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this._onClick = (event) => {
+            event.preventDefault();
+            let onClickPromise = this.props.onClick(event);
+            this.setState({ onClickPromise });
+            onClickPromise.finally(() => {
+                if (this.state.isMounted === true) {
+                    this.forceUpdate();
+                }
+            });
+        };
+        this.state = {
+            onClickPromise: Promise.resolve(),
+            isMounted: false,
+        };
+        // let state = this.state;
+        // let partialState : Partial<typeof state> = {isMounted:false};
+        blib.reactHelpers.componentLifecycle.bindComponentWillUnmount(this, () => { this.setState({ isMounted: false }); });
+        blib.reactHelpers.componentLifecycle.bindComponentWillMount(this, () => { this.setState({ isMounted: true }); });
+    }
+    render() {
+        return (React.createElement("button", { onClick: this._onClick, disabled: this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true },
+            React.createElement(blib.ReactLoader, { loaded: (this.state.onClickPromise.isResolved()) }),
+            this.props.children));
+    }
+}
+exports.SpinnerButton = SpinnerButton;
 //# sourceMappingURL=react-common-components.js.map

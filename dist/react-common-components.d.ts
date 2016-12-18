@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import blib = require("./_index");
 import xlib = require("xlib");
 import Promise = xlib.promise.bluebird;
@@ -107,4 +108,20 @@ export declare module StripeCheckout {
         private _checkoutClosed();
         private _onToken(stripeToken);
     }
+}
+/**
+ * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
+ * great for async callback operations
+ */
+export declare class SpinnerButton extends React.Component<{
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>;
+    /** set to true to force the button to be disabled */
+    isDisabled?: boolean;
+}, {
+    onClickPromise: Promise<any>;
+    isMounted: boolean;
+}> {
+    constructor(props: any);
+    render(): JSX.Element;
+    private _onClick;
 }

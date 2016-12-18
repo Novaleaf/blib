@@ -9,12 +9,17 @@ const ReactRedux = require("react-redux");
 exports.ReactRedux = ReactRedux;
 const xlib = require("xlib");
 exports.xlib = xlib;
+var _ = xlib.lodash;
 const ReactRouter = require("react-router");
 exports.ReactRouter = ReactRouter;
 const ReactRouterRedux = require("react-router-redux");
 exports.ReactRouterRedux = ReactRouterRedux;
 const ReduxLogger = require("redux-logger");
 exports.ReduxLogger = ReduxLogger;
+// /** http://adazzle.github.io/react-data-grid/  */
+// export import ReactDataGrid = require("react-data-grid");
+// export import ReactDataGridPlugins = require("react-data-grid/addons");
+exports.fixedDataTable = require("fixed-data-table");
 //export let ReduxLogger: {} = require("redux-logger");
 const log = new xlib.logging.Logger(__filename);
 //import ReactJsfForm from "react-jsonschema-form";
@@ -56,6 +61,9 @@ var ReactJsf;
                 case "string":
                     jsfType = "string";
                     break;
+                case "boolean":
+                    jsfType = "boolean";
+                    break;
                 case "none":
                     throw log.error("DEV TODO: dbType of none is invalid, need to modify to include a seperate prop value to show not storing");
                 //break;
@@ -65,6 +73,7 @@ var ReactJsf;
             let jsfProp = {
                 type: jsfType,
                 title: key,
+                required: prop.isOptional !== true,
             };
             jsfSchema.properties[key] = jsfProp;
             //compute ui schema
