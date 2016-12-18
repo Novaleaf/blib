@@ -109,43 +109,43 @@ var reactHelpers;
     (function (componentLifecycle) {
         function bindComponentWillMount(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).componentWillMount = boundFcn;
+            target.componentWillMount = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillMount = bindComponentWillMount;
         function bindComponentDidMount(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).componentDidMount = boundFcn;
+            target.componentDidMount = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentDidMount = bindComponentDidMount;
         function bindComponentWillReceiveProps(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).componentWillReceiveProps = boundFcn;
+            target.componentWillReceiveProps = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillReceiveProps = bindComponentWillReceiveProps;
         function bindShouldComponentUpdate(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).shouldComponentUpdate = boundFcn;
+            target.shouldComponentUpdate = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindShouldComponentUpdate = bindShouldComponentUpdate;
         function bindComponentWillUpdate(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).componentWillUpdate = boundFcn;
+            target.componentWillUpdate = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillUpdate = bindComponentWillUpdate;
         function bindComponentDidUpdate(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).componentDidUpdate = boundFcn;
+            target.componentDidUpdate = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentDidUpdate = bindComponentDidUpdate;
         function bindComponentWillUnmount(target, fcn) {
             let boundFcn = fcn.bind(target);
-            //(target as any).componentWillUnmount = boundFcn;
+            target.componentWillUnmount = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillUnmount = bindComponentWillUnmount;
