@@ -118,10 +118,24 @@ export declare class SpinnerButton extends React.Component<{
     /** set to true to force the button to be disabled */
     isDisabled?: boolean;
 }, {
-    onClickPromise: Promise<any>;
-    isMounted: boolean;
+    onClickPromise: Promise<any> & {
+        isMounted: boolean;
+    };
 }> {
     constructor(props: any);
+    private _instrumentMountInfo(promise, isMounted);
+    componentDidMount(): void;
+    componentWillUnmount(): void;
+    private isMounted;
     render(): JSX.Element;
     private _onClick;
+}
+export declare class Loader extends React.Component<{
+    isLoaded: boolean;
+    message?: any;
+    unmountChildrenWhenLoading?: boolean;
+}, {}> {
+    render(): JSX.Element;
+    private _getMessage();
+    private _renderChildrenMaybe();
 }

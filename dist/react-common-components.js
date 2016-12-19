@@ -196,22 +196,32 @@ class SpinnerButton extends React.Component {
         super(props);
         this._onClick = (event) => {
             event.preventDefault();
-            let onClickPromise = this.props.onClick(event);
+            let clickPromise = this.props.onClick(event);
+            let onClickPromise = this._instrumentMountInfo(clickPromise, this.state.onClickPromise.isMounted); //re-store the current isMounted state
             this.setState({ onClickPromise });
             onClickPromise.finally(() => {
-                if (this.state.isMounted === true) {
-                    this.forceUpdate();
+                if (this.state.onClickPromise.isMounted === true) {
+                    //notify that our promise state has changed internally
+                    this.setState({ onClickPromise });
                 }
             });
         };
+        let onClickPromise = this._instrumentMountInfo(Promise.resolve(), false);
         this.state = {
-            onClickPromise: Promise.resolve(),
-            isMounted: false,
+            onClickPromise,
         };
-        // let state = this.state;
-        // let partialState : Partial<typeof state> = {isMounted:false};
-        blib.reactHelpers.componentLifecycle.bindComponentWillUnmount(this, () => { this.setState({ isMounted: false }); });
-        blib.reactHelpers.componentLifecycle.bindComponentWillMount(this, () => { this.setState({ isMounted: true }); });
+    }
+    _instrumentMountInfo(promise, isMounted) {
+        //let promiseTypeProxy = this.state.onClickPromise;
+        let toReturn = promise;
+        toReturn.isMounted = isMounted;
+        return toReturn;
+    }
+    componentDidMount() {
+        this.state.onClickPromise.isMounted = true;
+    }
+    componentWillUnmount() {
+        this.state.onClickPromise.isMounted = false;
     }
     render() {
         return (React.createElement("button", { onClick: this._onClick, disabled: this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true },
@@ -220,4 +230,34 @@ class SpinnerButton extends React.Component {
     }
 }
 exports.SpinnerButton = SpinnerButton;
+const RLA = require("react-loader-advanced").default;
+/** IMPORTANT TODO:  need to import the css definitions to use this:  https://github.com/chenglou/react-spinner
+ * see this for info on how to inject the styles:   https://github.com/chenglou/react-spinner/issues/17
+*/
+const Spinner = require("react-spinner");
+class Loader extends React.Component {
+    render() {
+        return (React.createElement("div", null,
+            React.createElement(Spinner, null),
+            React.createElement(RLA, { show: this.props.isLoaded === false, message: (React.createElement("div", null,
+                    React.createElement(Spinner, null),
+                    React.createElement("br", null),
+                    this._getMessage())) }, this._renderChildrenMaybe())));
+    }
+    _getMessage() {
+        return this.props.message == null ? "Loading..." : this.props.message;
+    }
+    _renderChildrenMaybe() {
+        if (this.props.isLoaded === false && this.props.unmountChildrenWhenLoading === true) {
+            return React.createElement("div", null,
+                React.createElement("br", null),
+                this._getMessage(),
+                React.createElement("br", null));
+        }
+        else {
+            return this.props.children;
+        }
+    }
+}
+exports.Loader = Loader;
 //# sourceMappingURL=react-common-components.js.map

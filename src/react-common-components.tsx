@@ -1,5 +1,5 @@
 
-import blib = require("./_index");
+import blib = require( "./_index" );
 
 ///////////////////  APP FOLLOWING PATTERNS FROM: http://localhost:8080/auth-with-shared-root/   (react-router example)
 
@@ -10,10 +10,10 @@ import blib = require("./_index");
 
 import Cookie = blib.Cookie;
 
-import xlib = require("xlib");
+import xlib = require( "xlib" );
 import _ = xlib.lodash;
 import __ = xlib.lolo;
-var log = new xlib.logging.Logger(__filename);
+var log = new xlib.logging.Logger( __filename );
 //xlib.logging.logPromiseUnhandledRejections();
 import jsHelper = xlib.jsHelper;
 import Promise = xlib.promise.bluebird;
@@ -42,13 +42,13 @@ export interface RouterProps {
 		state: any;
 		action: string;
 		key: string;
-		query: { [key: string]: string; };
+		query: { [ key: string ]: string; };
 		$searchBase: { search: string; searchBase: string; };
 	};
 	params: any;
 	route: {
 		path: string;
-		component: (props: any, context: any) => any;
+		component: ( props: any, context: any ) => any;
 	};
 	routeParams: any;
 	routes: any[];
@@ -82,8 +82,8 @@ export class EzModal extends React.Component<{ ref: string }, {
 	showOptions?: IEzModalShowOptions
 }>{
 
-	constructor(props: any) {
-		super(props);
+	constructor( props: any ) {
+		super( props );
 		this.state = { isOpen: false, title: undefined, message: undefined, details: undefined, showOptions: {} };
 	}
 
@@ -100,40 +100,40 @@ export class EzModal extends React.Component<{ ref: string }, {
 		let buttonJsx: JSX.Element;
 		let onHideClick: Function;
 
-		if (this.state.showOptions == null) {
-			throw log.error("showOptions null", { state: this.state });
+		if ( this.state.showOptions == null ) {
+			throw log.error( "showOptions null", { state: this.state });
 		}
 
-		if (this.state.showOptions.confirmButtonText == null) {
-			buttonJsx = <Button className="btn-primary" onClick={this.CloseConfirm.bind(this)}> Close </Button>;
-			onHideClick = this.CloseConfirm.bind(this);
+		if ( this.state.showOptions.confirmButtonText == null ) {
+			buttonJsx = <Button className="btn-primary" onClick={ this.CloseConfirm.bind( this ) }> Close </Button>;
+			onHideClick = this.CloseConfirm.bind( this );
 		} else {
 			buttonJsx = <span>
-				<Button onClick={this.CloseCancel.bind(this)}>Cancel </Button>
-				<Button className="btn-primary" onClick={this.CloseConfirm.bind(this)} > {this.state.showOptions.confirmButtonText} </Button>
+				<Button onClick={ this.CloseCancel.bind( this ) }>Cancel </Button>
+				<Button className="btn-primary" onClick={ this.CloseConfirm.bind( this ) } > { this.state.showOptions.confirmButtonText } </Button>
 			</span>
 				;
 
-			onHideClick = this.CloseCancel.bind(this);
+			onHideClick = this.CloseCancel.bind( this );
 		}
 
 
 		//TODO:  how to pass args to function?
 		return (
 			<div>
-				<Modal show={this.state.isOpen} onHide={onHideClick} backdrop={this.state.showOptions.nonModal === true ? true : "static"} >
+				<Modal show={ this.state.isOpen } onHide={ onHideClick } backdrop={ this.state.showOptions.nonModal === true ? true : "static" } >
 
 					<Modal.Header closeButton>
-						<Modal.Title>{this.state.title} </Modal.Title>
+						<Modal.Title>{ this.state.title } </Modal.Title>
 					</Modal.Header>
 					< Modal.Body >
 						<div className="row" >
-							<div className="col-sm-12" > {this.state.message} </div>
-							< div className="col-sm-12" > <pre>{this.state.details} </pre></div >
+							<div className="col-sm-12" > { this.state.message } </div>
+							< div className="col-sm-12" > <pre>{ this.state.details } </pre></div >
 						</div>
 					</Modal.Body>
 					< Modal.Footer >
-						{buttonJsx}
+						{ buttonJsx }
 					</Modal.Footer>
 				</Modal>
 			</div>
@@ -142,17 +142,17 @@ export class EzModal extends React.Component<{ ref: string }, {
 
 	private _modalClosePromise: xlib.promise._deprecated.IExposedPromise<void> | null = null;
 
-	public Show(title: string | JSX.Element, message: string | JSX.Element, details?: string | JSX.Element, options?: IEzModalShowOptions) {
+	public Show( title: string | JSX.Element, message: string | JSX.Element, details?: string | JSX.Element, options?: IEzModalShowOptions ) {
 		//log.assert(false);
-		if (options == null) {
+		if ( options == null ) {
 			options = {};
 		}
 
-		if (this._modalClosePromise == null) {
+		if ( this._modalClosePromise == null ) {
 			this._modalClosePromise = xlib.promise._deprecated.CreateExposedPromise<void>();
 		}
 
-		this.setState({ isOpen: true, title, message, details, showOptions: options });
+		this.setState( { isOpen: true, title, message, details, showOptions: options });
 
 		return this._modalClosePromise as Promise<void>;
 
@@ -160,20 +160,20 @@ export class EzModal extends React.Component<{ ref: string }, {
 
 	public CloseConfirm() {
 		//log.assert(false);
-		this.setState({ isOpen: false });
-		if (this._modalClosePromise != null) {
+		this.setState( { isOpen: false });
+		if ( this._modalClosePromise != null ) {
 			let tempPromise = this._modalClosePromise;
 			this._modalClosePromise = null;
-			tempPromise.resolve(undefined);
+			tempPromise.resolve( undefined );
 		}
 	}
 	public CloseCancel() {
 		//log.assert(false);
-		this.setState({ isOpen: false });
-		if (this._modalClosePromise != null) {
+		this.setState( { isOpen: false });
+		if ( this._modalClosePromise != null ) {
 			let tempPromise = this._modalClosePromise;
 			this._modalClosePromise = null;
-			tempPromise.reject(undefined);
+			tempPromise.reject( undefined );
 		}
 	}
 }
@@ -224,7 +224,7 @@ export module StripeCheckout {
 
 		constructor() {
 			super();
-			this.state = { showOptions: _.clone(_defaultStripeCheckoutOptions) };
+			this.state = { showOptions: _.clone( _defaultStripeCheckoutOptions ) };
 		}
 
 
@@ -234,19 +234,19 @@ export module StripeCheckout {
 		 * shows the stripe checkout modal using your options.    returns the stripeToken via promise.
 		 * @param showOptions
 		 */
-		public showStripe(showOptions: IStripeCheckoutOptions): Promise<{ stripeToken: xlib.definitions.stripe.IToken }> {
+		public showStripe( showOptions: IStripeCheckoutOptions ): Promise<{ stripeToken: xlib.definitions.stripe.IToken }> {
 
-			blib.googleAnalytics("send", "event", "stripeCheckout", "start");
+			blib.googleAnalytics( "send", "event", "stripeCheckout", "start" );
 
-			if (this._showPromise != null && this._showPromise.isResolved() !== true) {
-				return Promise.reject(new Error("StripeCheckout.showStripe() already in progress"));
+			if ( this._showPromise != null && this._showPromise.isResolved() !== true ) {
+				return Promise.reject( new Error( "StripeCheckout.showStripe() already in progress" ) );
 			}
 
-			this._showPromise = xlib.promise._deprecated.CreateExposedPromise<{ stripeToken: xlib.definitions.stripe.IToken }>((resolve, reject) => {
+			this._showPromise = xlib.promise._deprecated.CreateExposedPromise<{ stripeToken: xlib.definitions.stripe.IToken }>(( resolve, reject ) => {
 
-				this.setState({ showOptions }, () => {
+				this.setState( { showOptions }, () => {
 					//callback
-					var stripeCheckout = this.refs["reactStripeCheckout"] as any;
+					var stripeCheckout = this.refs[ "reactStripeCheckout" ] as any;
 					//log.assert(false, "inspect", stripeCheckout);
 					stripeCheckout.showStripeDialog();
 				});
@@ -261,26 +261,26 @@ export module StripeCheckout {
 			return (
 				<StripeCheckout
 					ref="reactStripeCheckout"
-					token={this._onToken.bind(this)}
-					stripeKey={this.props.configOptions.stripeKey}
-					billingAddress={showOptions.billingAddressCheck}
-					shippingAddress={showOptions.shippingAddressCheck}
+					token={ this._onToken.bind( this ) }
+					stripeKey={ this.props.configOptions.stripeKey }
+					billingAddress={ showOptions.billingAddressCheck }
+					shippingAddress={ showOptions.shippingAddressCheck }
 					currency="USD"
-					email={showOptions.email}
-					zipCode={showOptions.zipCodeCheck}
-					alipay={showOptions.allowAlipay}
-					alipayReusable={showOptions.allowAlipayReusable}
-					bitcoin={showOptions.allowBitcoin}
-					name={showOptions.name}
-					description={showOptions.description}
-					panelLabel={showOptions.payButtonLabel}
-					image={showOptions.imageUrl}
-					allowRememberMe={showOptions.allowRememberMe}
-					reconfigureOnUpdates={true}
-					reconfigureOnUpdate={true}
-					amount={showOptions.amount}
-					closed={this._checkoutClosed.bind(this)}
-					> <button style={{ display: "none" }}></button>
+					email={ showOptions.email }
+					zipCode={ showOptions.zipCodeCheck }
+					alipay={ showOptions.allowAlipay }
+					alipayReusable={ showOptions.allowAlipayReusable }
+					bitcoin={ showOptions.allowBitcoin }
+					name={ showOptions.name }
+					description={ showOptions.description }
+					panelLabel={ showOptions.payButtonLabel }
+					image={ showOptions.imageUrl }
+					allowRememberMe={ showOptions.allowRememberMe }
+					reconfigureOnUpdates={ true }
+					reconfigureOnUpdate={ true }
+					amount={ showOptions.amount }
+					closed={ this._checkoutClosed.bind( this ) }
+					> <button style={ { display: "none" } }></button>
 				</StripeCheckout>
 			);
 		}
@@ -294,26 +294,26 @@ export module StripeCheckout {
 			//need to put in timeout otherwise source-map-support barfs with xss security errors
 			setTimeout(() => {
 				//log.debug("EzStrieCheckout._checkoutClosed().timeout");
-				if (this._showPromise != null && this._showPromise.isResolved() !== true) {
-					this._showPromise.reject(new Error("aborted by user"));
-					blib.googleAnalytics("send", "event", "stripeCheckout", "cancel");
+				if ( this._showPromise != null && this._showPromise.isResolved() !== true ) {
+					this._showPromise.reject( new Error( "aborted by user" ) );
+					blib.googleAnalytics( "send", "event", "stripeCheckout", "cancel" );
 					return;
 				}
 			});
 		}
 
 
-		private _onToken(stripeToken: xlib.definitions.stripe.IToken) {
+		private _onToken( stripeToken: xlib.definitions.stripe.IToken ) {
 			//log.debug("EzStrieCheckout.onToken()", { stripeToken, arguments });
 
 			//setTimeout(() => {
 			//log.debug("EzStrieCheckout.onToken().timeout");
-			if (this._showPromise != null && this._showPromise.isResolved() !== true) {
-				this._showPromise.resolve({ stripeToken });
-				blib.googleAnalytics("send", "event", "stripeCheckout", "finish");
+			if ( this._showPromise != null && this._showPromise.isResolved() !== true ) {
+				this._showPromise.resolve( { stripeToken });
+				blib.googleAnalytics( "send", "event", "stripeCheckout", "finish" );
 				return;
 			}
-			log.assert(false, "promise isn't ready, why?");
+			log.assert( false, "promise isn't ready, why?" );
 			//});
 			//this.componentDidMount
 		}
@@ -323,41 +323,53 @@ export module StripeCheckout {
 
 
 
+
 /**
  * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
  * great for async callback operations
  */
 export class SpinnerButton extends React.Component<{
-	onClick: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>,
+	onClick: ( event: React.MouseEvent<HTMLButtonElement> ) => Promise<any>,
 	/** set to true to force the button to be disabled */
 	isDisabled?: boolean
-}, { onClickPromise: Promise<any>, isMounted:boolean }>{
+}, { onClickPromise: Promise<any> & { /** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/ isMounted: boolean } }>{
 
-	constructor(props: any) {
-		super(props);
+	constructor( props: any ) {
+		super( props );
+
+		let onClickPromise = this._instrumentMountInfo( Promise.resolve(), false );
 		this.state = {
-			onClickPromise: Promise.resolve(),
-			isMounted:false,
+			onClickPromise,
 		};
-
-// let state = this.state;
-// let partialState : Partial<typeof state> = {isMounted:false};
-
-		blib.reactHelpers.componentLifecycle.bindComponentWillUnmount(this, () => { this.setState({isMounted:false} as any) });
-		blib.reactHelpers.componentLifecycle.bindComponentWillMount(this, () =>{ this.setState({isMounted:true} as any) });
 	}
 
+	private _instrumentMountInfo( promise: Promise<any>, isMounted: boolean ) {
+		//let promiseTypeProxy = this.state.onClickPromise;
+		let toReturn = promise as Promise<any> & { /** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/ isMounted: boolean };
+		toReturn.isMounted = isMounted;
+		return toReturn;
+	}
+
+	public componentDidMount() {
+		this.state.onClickPromise.isMounted = true;
+	}
+
+	public componentWillUnmount() {
+		this.state.onClickPromise.isMounted = false;
+	}
+
+	private isMounted: boolean;
 
 	render() {
 
 		return (
 
 			<button
-				onClick={this._onClick}
-				disabled={this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true}
+				onClick={ this._onClick }
+				disabled={ this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true }
 				>
-				<blib.ReactLoader loaded={(this.state.onClickPromise.isResolved())} />
-				{this.props.children}
+				<blib.ReactLoader loaded={ ( this.state.onClickPromise.isResolved() ) } />
+				{ this.props.children }
 
 			</button>
 
@@ -365,17 +377,19 @@ export class SpinnerButton extends React.Component<{
 
 	}
 
-	private _onClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+	private _onClick = ( event: React.MouseEvent<HTMLButtonElement> ) => {
 		event.preventDefault();
 
-		let onClickPromise = this.props.onClick(event);
+		let clickPromise = this.props.onClick( event );
+		let onClickPromise = this._instrumentMountInfo( clickPromise, this.state.onClickPromise.isMounted ); //re-store the current isMounted state
 
-		this.setState({ onClickPromise } as any);
+		this.setState( { onClickPromise });
 
 		onClickPromise.finally(() => {
 
-			if (this.state.isMounted === true) {
-				this.forceUpdate();
+			if ( this.state.onClickPromise.isMounted === true ) {
+				//notify that our promise state has changed internally
+				this.setState( { onClickPromise });
 			}
 		});
 	};
@@ -383,3 +397,40 @@ export class SpinnerButton extends React.Component<{
 
 
 }
+
+
+const RLA = require( "react-loader-advanced" ).default;
+/** IMPORTANT TODO:  need to import the css definitions to use this:  https://github.com/chenglou/react-spinner  
+ * see this for info on how to inject the styles:   https://github.com/chenglou/react-spinner/issues/17 
+*/
+const Spinner = require( "react-spinner" );
+
+export class Loader extends React.Component<{ isLoaded: boolean, message?: any, unmountChildrenWhenLoading?: boolean }, {}>{
+	render() {
+		return (
+			<div>
+				<Spinner />
+				<RLA show={ this.props.isLoaded === false } message={ ( <div><Spinner /><br />{ this._getMessage() }</div> ) }>
+					{ this._renderChildrenMaybe()	}
+				</RLA>
+			</div>
+		);
+	}
+
+private _getMessage(){
+ return this.props.message == null ? "Loading..." : this.props.message;
+
+}
+	private _renderChildrenMaybe() {
+		if (this.props.isLoaded===false && this.props.unmountChildrenWhenLoading === true ) {
+			return <div><br/>{ this._getMessage() }<br/></div>;
+		} else {
+			return this.props.children;
+		}
+	}
+
+}
+
+
+
+
