@@ -240,38 +240,38 @@ export module reactHelpers {
 	 */
 	export module componentLifecycle {
 		export function bindComponentWillMount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
-			let boundFcn = fcn.bind(target);
+			let boundFcn = __.bind(fcn,target);
 			(target as any).componentWillMount = boundFcn;
 			return boundFcn;
 		}
 		export function bindComponentDidMount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
-			let boundFcn = fcn.bind(target);
+			let boundFcn = __.bind(fcn,target);
 			(target as any).componentDidMount = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentWillReceiveProps<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextContext: any) => void) {
-			let boundFcn = fcn.bind(target);
+		export function bindComponentWillReceiveProps<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => void) {
+			let boundFcn =__.bind(fcn,target);
 			(target as any).componentWillReceiveProps = boundFcn;
 			return boundFcn;
 		}
-		export function bindShouldComponentUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State, nextContext: any) => boolean) {
-			let boundFcn = fcn.bind(target);
+		export function bindShouldComponentUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => boolean) {
+			let boundFcn = __.bind(fcn,target);
 			(target as any).shouldComponentUpdate = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentWillUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State, nextContext: any) => void) {
-			let boundFcn = fcn.bind(target);
+		export function bindComponentWillUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => void) {
+			let boundFcn = __.bind(fcn,target);
 			(target as any).componentWillUpdate = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentDidUpdate<Props, State>(target: React.Component<Props, State>, fcn: (prevProps: Props, prevState: State, prevContext: any) => void) {
-			let boundFcn = fcn.bind(target);
+		export function bindComponentDidUpdate<Props, State>(target: React.Component<Props, State>, fcn: (prevProps: Props, prevState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ prevContext?: any) => void) {
+			let boundFcn = __.bind(fcn,target);
 			(target as any).componentDidUpdate = boundFcn;
 			return boundFcn;
 		}
 
 		export function bindComponentWillUnmount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
-			let boundFcn = fcn.bind(target);
+			let boundFcn = __.bind(fcn,target);
 			(target as any).componentWillUnmount = boundFcn;
 			return boundFcn;
 		}
