@@ -103,7 +103,18 @@ export declare module ReactJsf {
 export declare let ReduxUndo: {
     undoable: <T>(reducerIn: Redux.Reducer<T>) => Redux.Reducer<T>;
 };
+import Promise = xlib.promise.bluebird;
 export declare module reactHelpers {
+    /**
+     * helper to properly attach (and handle existing ) promises on React.Component.State objects.
+     * this is tricky because it needs to be done atomically, so that the promise chain doesn't branch nor become detached.
+     * this method handles all that, provided that for you, and automatically updates the componenet when done.
+     * @param component
+     * @param stateKey
+     * @param promiseToEnqueue
+     * @returns Promise that resolves once the final component update is finished.
+     */
+    function enqueueStatePromise<TState, TStateKey extends keyof TState>(component: React.Component<any, TState>, stateKey: TStateKey, promiseToEnqueue: Promise<any> & TState[TStateKey]): Promise<void>;
     /**
      *  calculate the current route of the SPA by looking at window.location.hash
      */
@@ -113,20 +124,29 @@ export declare module reactHelpers {
      * example use:  ```class MyComponent extends React.Component<any,any>{componentDidMount = componentLifecycleHelpers.bindComponentWillMount(this,()=>{console.log("mounted");});}```
      */
     module componentLifecycle {
-        function bindComponentWillMount<Props, State>(target: React.Component<Props, State>, fcn: () => void): any;
-        function bindComponentDidMount<Props, State>(target: React.Component<Props, State>, fcn: () => void): any;
-        function bindComponentWillReceiveProps<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextContext: any) => void): any;
-        function bindShouldComponentUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State, nextContext: any) => boolean): any;
-        function bindComponentWillUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State, nextContext: any) => void): any;
-        function bindComponentDidUpdate<Props, State>(target: React.Component<Props, State>, fcn: (prevProps: Props, prevState: State, prevContext: any) => void): any;
-        function bindComponentWillUnmount<Props, State>(target: React.Component<Props, State>, fcn: () => void): any;
+        function bindComponentWillMount<Props, State>(target: React.Component<Props, State>, fcn: () => void): () => void;
+        function bindComponentDidMount<Props, State>(target: React.Component<Props, State>, fcn: () => void): () => void;
+        function bindComponentWillReceiveProps<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, /** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => void): (nextProps: Props, nextContext?: any) => void;
+        function bindShouldComponentUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State, /** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => boolean): (nextProps: Props, nextState: State, nextContext?: any) => boolean;
+        function bindComponentWillUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State, /** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => void): (nextProps: Props, nextState: State, nextContext?: any) => void;
+        function bindComponentDidUpdate<Props, State>(target: React.Component<Props, State>, fcn: (prevProps: Props, prevState: State, /** If contextTypes is defined within a component,will receive an additional parameter, the context object */ prevContext?: any) => void): (prevProps: Props, prevState: State, prevContext?: any) => void;
+        function bindComponentWillUnmount<Props, State>(target: React.Component<Props, State>, fcn: () => void): () => void;
     }
 }
 export declare module reduxHelpers {
     /** the output of all redux actions should be in this form */
     interface IReduxActionResult<TValue> {
+        /** required by redux, informs what reducer should get this 'action' to process*/
         type: string;
+        /** our opinionated encapsulation of state changes*/
         value: TValue;
+    }
+    /** the output of all redux actions should be in this form */
+    interface IReduxActionResultPromise<TValue> {
+        /** required by redux, informs what reducer should get this 'action' to process*/
+        type: string;
+        /** use the "redux-promise-middleware" to allow passing promises */
+        payload?: Promise<TValue>;
     }
     /** interface for our blib redux state pattern.  to simplify + modularize redux state management */
     interface IReduxStateModule {
@@ -157,7 +177,11 @@ export declare module reduxHelpers {
      * for actions, the best way is not to use this, but to create a bound-action and reference those action functions directly in their declaring modules.
      * see the auth module for example code.
      */
-    function reduxConnect<TComponentClass extends typeof React.Component>(ComponentClass: TComponentClass, states?: string[], actions?: {}[]): TComponentClass;
+    function reduxConnect<TComponentClass extends typeof React.Component>(
+        /** the component that you want bound to redux */
+        ComponentClass: TComponentClass, 
+        /** an array of the redux states you want sent to your component as a prop.   example:  "auth" via the auth modules auth.reduxState.authKey property */
+        states?: string[], actions?: {}[]): TComponentClass;
 }
 /** easy cookie query and manipulation.  https://www.npmjs.com/package/js-cookie */
 export import Cookie = require("js-cookie");

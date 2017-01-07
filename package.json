@@ -28,6 +28,7 @@
     "@types/react": "^0.14.55",
     "@types/react-bootstrap": "0.0.33",
     "@types/react-dom": "^0.14.15",
+    "@types/react-json-tree": "^0.6.2",
     "@types/react-jsonschema-form": "^0.30.4",
     "@types/react-redux": "^4.4.32",
     "@types/react-router": "^2.0.37",
@@ -40,6 +41,7 @@
     "react-bootstrap": "^0.30.7",
     "react-dom": "^15.4.1",
     "react-google-recaptcha": "^0.5.4",
+    "react-json-tree": "^0.10.0",
     "react-jsonschema-form": "^0.41.2",
     "react-loader": "^2.4.0",
     "react-loader-advanced": "^1.4.1",
@@ -51,6 +53,8 @@
     "redux": "^3.6.0",
     "redux-little-router": "^11.0.0",
     "redux-logger": "^2.7.4",
+    "redux-promise": "^0.5.3",
+    "redux-promise-middleware": "^4.2.0",
     "redux-undo": "^0.6.1",
     "xlib": "^7.0.0"
   }

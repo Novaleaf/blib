@@ -322,6 +322,20 @@ export module StripeCheckout {
 }
 
 
+/**
+ *  bootstrap "Card" component
+ * @param props
+ */
+export function Card( props: { children?: React.ReactNode }) {
+	return (
+		<div className="card">
+			<div className="card-block">
+				{ props.children }
+			</div>
+		</div>
+	);
+};
+
 
 
 /**
@@ -411,19 +425,19 @@ export class Loader extends React.Component<{ isLoaded: boolean, message?: any, 
 			<div>
 				<Spinner />
 				<RLA show={ this.props.isLoaded === false } message={ ( <div><Spinner /><br />{ this._getMessage() }</div> ) }>
-					{ this._renderChildrenMaybe()	}
+					{ this._renderChildrenMaybe() }
 				</RLA>
 			</div>
 		);
 	}
 
-private _getMessage(){
- return this.props.message == null ? "Loading..." : this.props.message;
+	private _getMessage() {
+		return this.props.message == null ? "Loading..." : this.props.message;
 
-}
+	}
 	private _renderChildrenMaybe() {
-		if (this.props.isLoaded===false && this.props.unmountChildrenWhenLoading === true ) {
-			return <div><br/>{ this._getMessage() }<br/></div>;
+		if ( this.props.isLoaded === false && this.props.unmountChildrenWhenLoading === true ) {
+			return <div><br />{ this._getMessage() }<br /></div>;
 		} else {
 			return this.props.children;
 		}
@@ -432,5 +446,14 @@ private _getMessage(){
 }
 
 
+
+//import ReactJsonTree = require("react-json-tree");
+
+
+/**JSON viewer from npm react-json-tree */
+import JSONTree from "react-json-tree";
+/**JSON viewer from npm react-json-tree */
+export const JsonTree = JSONTree;
+//export {/**JSON viewer from npm react-json-tree */JSONTree};
 
 

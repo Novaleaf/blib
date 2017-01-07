@@ -110,6 +110,13 @@ export declare module StripeCheckout {
     }
 }
 /**
+ *  bootstrap "Card" component
+ * @param props
+ */
+export declare function Card(props: {
+    children?: React.ReactNode;
+}): JSX.Element;
+/**
  * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
  * great for async callback operations
  */
@@ -139,3 +146,7 @@ export declare class Loader extends React.Component<{
     private _getMessage();
     private _renderChildrenMaybe();
 }
+/**JSON viewer from npm react-json-tree */
+import JSONTree from "react-json-tree";
+/**JSON viewer from npm react-json-tree */
+export declare const JsonTree: typeof JSONTree;

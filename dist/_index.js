@@ -1,4 +1,13 @@
 "use strict";
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 const React = require("react");
 exports.React = React;
 const ReactDom = require("react-dom");
@@ -7,6 +16,9 @@ const Redux = require("redux");
 exports.Redux = Redux;
 const ReactRedux = require("react-redux");
 exports.ReactRedux = ReactRedux;
+//import redux-promise middleware silently for use anywhere:  https://github.com/acdlite/redux-promise
+const reduxPromise = require("redux-promise");
+//import promiseMiddleware from "redux-promise-middleware";
 const xlib = require("xlib");
 exports.xlib = xlib;
 var _ = xlib.lodash;
@@ -89,9 +101,48 @@ var ReactJsf;
     ReactJsf.Form = react_jsonschema_form_1.default;
 })(ReactJsf = exports.ReactJsf || (exports.ReactJsf = {}));
 exports.ReduxUndo = require("redux-undo");
+var Promise = xlib.promise.bluebird;
 var __ = xlib.lolo;
 var reactHelpers;
 (function (reactHelpers) {
+    /**
+     * helper to properly attach (and handle existing ) promises on React.Component.State objects.
+     * this is tricky because it needs to be done atomically, so that the promise chain doesn't branch nor become detached.
+     * this method handles all that, provided that for you, and automatically updates the componenet when done.
+     * @param component
+     * @param stateKey
+     * @param promiseToEnqueue
+     * @returns Promise that resolves once the final component update is finished.
+     */
+    function enqueueStatePromise(component, stateKey, promiseToEnqueue) {
+        return new Promise((resolve, reject) => {
+            //call setState atomically
+            component.setState((prevState, props) => {
+                //this function is called atomically inside of setState
+                let newWaitForPromise = prevState[stateKey];
+                if (newWaitForPromise == null) {
+                    newWaitForPromise = Promise.resolve();
+                }
+                //attach our promiseToEnqueue to the end
+                newWaitForPromise = newWaitForPromise.then((_a) => {
+                    var args = __rest(_a, []);
+                    return promiseToEnqueue;
+                });
+                //when the promise finishes, force update
+                newWaitForPromise.then(() => {
+                    component.forceUpdate(() => {
+                        //after the forceUpdate has completed, notify our caller via their returned promise.
+                        resolve();
+                    });
+                });
+                //the returned value is applied on the actual state object
+                let toReturn = {};
+                toReturn[stateKey] = newWaitForPromise;
+                return toReturn;
+            });
+        });
+    }
+    reactHelpers.enqueueStatePromise = enqueueStatePromise;
     /**
      *  calculate the current route of the SPA by looking at window.location.hash
      */
@@ -108,43 +159,43 @@ var reactHelpers;
     var componentLifecycle;
     (function (componentLifecycle) {
         function bindComponentWillMount(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.componentWillMount = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillMount = bindComponentWillMount;
         function bindComponentDidMount(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.componentDidMount = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentDidMount = bindComponentDidMount;
         function bindComponentWillReceiveProps(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.componentWillReceiveProps = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillReceiveProps = bindComponentWillReceiveProps;
         function bindShouldComponentUpdate(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.shouldComponentUpdate = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindShouldComponentUpdate = bindShouldComponentUpdate;
         function bindComponentWillUpdate(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.componentWillUpdate = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentWillUpdate = bindComponentWillUpdate;
         function bindComponentDidUpdate(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.componentDidUpdate = boundFcn;
             return boundFcn;
         }
         componentLifecycle.bindComponentDidUpdate = bindComponentDidUpdate;
         function bindComponentWillUnmount(target, fcn) {
-            let boundFcn = fcn.bind(target);
+            let boundFcn = __.bind(fcn, target);
             target.componentWillUnmount = boundFcn;
             return boundFcn;
         }
@@ -176,7 +227,7 @@ var reduxHelpers;
         ReactRouterRedux.routerMiddleware(history), ReduxLogger({
             collapsed: true,
             diff: true,
-        }));
+        }), reduxPromise);
         ///////////////  apply redux-devtools chrome extension if present
         //see: https://github.com/gaearon/redux-devtools/blob/master/docs/Walkthrough.md
         // get the extension from here:  https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd
@@ -210,7 +261,11 @@ var reduxHelpers;
      * for actions, the best way is not to use this, but to create a bound-action and reference those action functions directly in their declaring modules.
      * see the auth module for example code.
      */
-    function reduxConnect(ComponentClass, states = [], actions = []) {
+    function reduxConnect(
+        /** the component that you want bound to redux */
+        ComponentClass, 
+        /** an array of the redux states you want sent to your component as a prop.   example:  "auth" via the auth modules auth.reduxState.authKey property */
+        states = [], actions = []) {
         //	//oriignal reference implementation		
         //return ReactRedux.connect(
         //	null,
@@ -233,16 +288,24 @@ var reduxHelpers;
             });
         }
         //////////////////////////
-        /// construct state map fcn, if any
+        /// construct "mapStatesToProps"" state map fcn, if any
+        /// this will be called for every mounted reduxConnected component every time any redux state is changed, sending the component the latest redux store state.
+        /// it is critical that you don't clone the state like I did previously (see commented _clone() line below) 
+        /// otherwise each component will detect that it's redux state-->prop has changed and force an update+redraw
         let mapStatesToProps;
         if (states == null || states.length == 0) {
             mapStatesToProps = null;
         }
         else {
-            mapStatesToProps = (reduxStoreState) => {
+            mapStatesToProps = (
+                /** the redux store. a key-value pojo store  */
+                reduxStoreState, 
+                /** not sure what arg2 is supposed to be, but it seems to be other props sent to the component */
+                arg2) => {
+                //grab all the states that this component is interested in, and return them
                 let targetStates = {};
                 __.forEach(states, (stateKey) => {
-                    targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
+                    targetStates[stateKey] = reduxStoreState[stateKey]; // _.clone(reduxStoreState[stateKey]);
                 });
                 return targetStates;
             };

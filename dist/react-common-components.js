@@ -188,6 +188,16 @@ var StripeCheckout;
     StripeCheckout_1.EzStripeCheckout = EzStripeCheckout;
 })(StripeCheckout = exports.StripeCheckout || (exports.StripeCheckout = {}));
 /**
+ *  bootstrap "Card" component
+ * @param props
+ */
+function Card(props) {
+    return (React.createElement("div", { className: "card" },
+        React.createElement("div", { className: "card-block" }, props.children)));
+}
+exports.Card = Card;
+;
+/**
  * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
  * great for async callback operations
  */
@@ -260,4 +270,10 @@ class Loader extends React.Component {
     }
 }
 exports.Loader = Loader;
+//import ReactJsonTree = require("react-json-tree");
+/**JSON viewer from npm react-json-tree */
+const react_json_tree_1 = require("react-json-tree");
+/**JSON viewer from npm react-json-tree */
+exports.JsonTree = react_json_tree_1.default;
+//export {/**JSON viewer from npm react-json-tree */JSONTree};
 //# sourceMappingURL=react-common-components.js.map

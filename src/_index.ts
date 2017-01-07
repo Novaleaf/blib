@@ -10,6 +10,11 @@ export { Redux };
 import * as ReactRedux from "react-redux";
 export { ReactRedux };
 
+//import redux-promise middleware silently for use anywhere:  https://github.com/acdlite/redux-promise
+const reduxPromise = require( "redux-promise" );
+
+//import promiseMiddleware from "redux-promise-middleware";
+
 import * as xlib from "xlib";
 export { xlib };
 import _ = xlib.lodash;
@@ -25,13 +30,13 @@ export { ReduxLogger };
 // /** http://adazzle.github.io/react-data-grid/  */
 // export import ReactDataGrid = require("react-data-grid");
 // export import ReactDataGridPlugins = require("react-data-grid/addons");
-export import fixedDataTable = require("fixed-data-table");
+export import fixedDataTable = require( "fixed-data-table" );
 
 
 //export let ReduxLogger: {} = require("redux-logger");
 
 
-const log = new xlib.logging.Logger(__filename);
+const log = new xlib.logging.Logger( __filename );
 
 //import ReactJsfForm from "react-jsonschema-form";
 //export { ReactJsfForm };
@@ -50,7 +55,7 @@ export module ReactJsf {
 	 *  helper will construct a Jsf Schema from a xlib DataSchema
 	 * @param dataSchema
 	 */
-	export function constructJsfSchemaFromDataSchema(dataSchema: xlib.designPatterns.dataSchema.ISchema) {
+	export function constructJsfSchemaFromDataSchema( dataSchema: xlib.designPatterns.dataSchema.ISchema ) {
 
 
 		let jsfSchema: IObjectSchema = {
@@ -62,10 +67,10 @@ export module ReactJsf {
 		let uiSchema: IUiSchema = {};
 
 		//copy props
-		xlib.lolo.forEach(dataSchema.properties, (prop, key) => {
+		xlib.lolo.forEach( dataSchema.properties, ( prop, key ) => {
 
 
-			if (prop.isHidden === true) {
+			if ( prop.isHidden === true ) {
 				//not for user input
 				return;
 			}
@@ -73,7 +78,7 @@ export module ReactJsf {
 
 			//compute jsfSchema for prop
 			let jsfType: string;
-			switch (prop.dbType) {
+			switch ( prop.dbType ) {
 				case "double":
 					jsfType = "number";
 					break;
@@ -87,10 +92,10 @@ export module ReactJsf {
 					jsfType = "boolean";
 					break;
 				case "none":
-					throw log.error("DEV TODO: dbType of none is invalid, need to modify to include a seperate prop value to show not storing");
+					throw log.error( "DEV TODO: dbType of none is invalid, need to modify to include a seperate prop value to show not storing" );
 				//break;
 				default:
-					throw log.error("unhandled prop type:" + prop.dbType, { key, prop });
+					throw log.error( "unhandled prop type:" + prop.dbType, { key, prop });
 
 			}
 
@@ -101,11 +106,11 @@ export module ReactJsf {
 				//format: prop.inputFormat,
 			}
 
-			jsfSchema.properties[key] = jsfProp;
+			jsfSchema.properties[ key ] = jsfProp;
 
 			//compute ui schema
-			if (prop.inputWidget != null) {
-				uiSchema[key] = {
+			if ( prop.inputWidget != null ) {
+				uiSchema[ key ] = {
 					"ui:widget": prop.inputWidget,
 				};
 			}
@@ -128,10 +133,10 @@ export module ReactJsf {
 		formData?: any;
 		widgets?: {};
 		fields?: {};
-		validate?: (formData: any, errors: any) => any;
-		onChange?: (e: IChangeEvent) => any;
-		onError?: (e: any) => any;
-		onSubmit?: (e: any) => any;
+		validate?: ( formData: any, errors: any ) => any;
+		onChange?: ( e: IChangeEvent ) => any;
+		onError?: ( e: any ) => any;
+		onSubmit?: ( e: any ) => any;
 		liveValidate?: boolean;
 		safeRenderCompletion?: boolean;
 	}
@@ -146,7 +151,7 @@ export module ReactJsf {
 	}
 
 	export interface IUiSchema {
-		[propName: string]: IUiSchemaField;
+		[ propName: string ]: IUiSchemaField;
 	}
 
 	export interface IUiSchemaField {
@@ -170,10 +175,10 @@ export module ReactJsf {
 
 		type: "object";
 		title?: string;
-		properties: { [name: string]: IObjectSchema | IPropSchema | IRefSchema | IArraySchema };
+		properties: { [ name: string ]: IObjectSchema | IPropSchema | IRefSchema | IArraySchema };
 
 		/** alt definitions used as reference types for embeded schema*/
-		definitions?: { [name: string]: IObjectSchema };
+		definitions?: { [ name: string ]: IObjectSchema };
 	}
 
 	export interface IArraySchema {
@@ -208,9 +213,9 @@ export module ReactJsf {
 
 
 export let ReduxUndo: {
-	undoable: <T>(reducerIn: Redux.Reducer<T>) => Redux.Reducer<T>;
+	undoable: <T>( reducerIn: Redux.Reducer<T> ) => Redux.Reducer<T>;
 
-} = require("redux-undo");
+} = require( "redux-undo" );
 
 
 import Promise = xlib.promise.bluebird;
@@ -221,15 +226,60 @@ import __ = xlib.lolo;
 
 export module reactHelpers {
 
-	
 
+	/**
+	 * helper to properly attach (and handle existing ) promises on React.Component.State objects.
+	 * this is tricky because it needs to be done atomically, so that the promise chain doesn't branch nor become detached.
+	 * this method handles all that, provided that for you, and automatically updates the componenet when done.
+	 * @param component
+	 * @param stateKey
+	 * @param promiseToEnqueue
+	 * @returns Promise that resolves once the final component update is finished.
+	 */
+	export function enqueueStatePromise<TState, TStateKey extends keyof TState>( component: React.Component<any, TState>, stateKey: TStateKey, promiseToEnqueue: Promise<any> & TState[ TStateKey ] ): Promise<void> {
+
+		return new Promise<void>(( resolve, reject ) => {
+			//call setState atomically
+			component.setState(( prevState, props ) => {
+				//this function is called atomically inside of setState
+
+
+				let newWaitForPromise = ( prevState[ stateKey ] as any as Promise<any> );
+				if ( newWaitForPromise == null ) {
+					newWaitForPromise = Promise.resolve();
+				}
+
+				//attach our promiseToEnqueue to the end
+				newWaitForPromise = newWaitForPromise.then(( {...args}) => {
+					return promiseToEnqueue;
+				});
+
+
+				//when the promise finishes, force update
+				newWaitForPromise.then(() => {
+					component.forceUpdate(() => {
+						//after the forceUpdate has completed, notify our caller via their returned promise.
+						resolve();
+					});
+
+				});
+
+				//the returned value is applied on the actual state object
+				let toReturn: Partial<TState> = {} as any;
+				toReturn[ stateKey ] = newWaitForPromise as any;
+				return toReturn as TState;
+
+			});
+		});
+
+	}
 
 	/**
 	 *  calculate the current route of the SPA by looking at window.location.hash
 	 */
 	export function currentSpaRoute() {
-		let _currentRoute = xlib.stringHelper.removeBefore(window.location.hash, "#").toLowerCase();
-		_currentRoute = xlib.stringHelper.removeAfter(_currentRoute, "?");
+		let _currentRoute = xlib.stringHelper.removeBefore( window.location.hash, "#" ).toLowerCase();
+		_currentRoute = xlib.stringHelper.removeAfter( _currentRoute, "?" );
 		return _currentRoute;
 	}
 
@@ -239,40 +289,40 @@ export module reactHelpers {
 	 * example use:  ```class MyComponent extends React.Component<any,any>{componentDidMount = componentLifecycleHelpers.bindComponentWillMount(this,()=>{console.log("mounted");});}```
 	 */
 	export module componentLifecycle {
-		export function bindComponentWillMount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
-			let boundFcn = __.bind(fcn,target);
-			(target as any).componentWillMount = boundFcn;
+		export function bindComponentWillMount<Props, State>( target: React.Component<Props, State>, fcn: () => void ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).componentWillMount = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentDidMount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
-			let boundFcn = __.bind(fcn,target);
-			(target as any).componentDidMount = boundFcn;
+		export function bindComponentDidMount<Props, State>( target: React.Component<Props, State>, fcn: () => void ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).componentDidMount = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentWillReceiveProps<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => void) {
-			let boundFcn =__.bind(fcn,target);
-			(target as any).componentWillReceiveProps = boundFcn;
+		export function bindComponentWillReceiveProps<Props, State>( target: React.Component<Props, State>, fcn: ( nextProps: Props,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any ) => void ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).componentWillReceiveProps = boundFcn;
 			return boundFcn;
 		}
-		export function bindShouldComponentUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => boolean) {
-			let boundFcn = __.bind(fcn,target);
-			(target as any).shouldComponentUpdate = boundFcn;
+		export function bindShouldComponentUpdate<Props, State>( target: React.Component<Props, State>, fcn: ( nextProps: Props, nextState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any ) => boolean ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).shouldComponentUpdate = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentWillUpdate<Props, State>(target: React.Component<Props, State>, fcn: (nextProps: Props, nextState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any) => void) {
-			let boundFcn = __.bind(fcn,target);
-			(target as any).componentWillUpdate = boundFcn;
+		export function bindComponentWillUpdate<Props, State>( target: React.Component<Props, State>, fcn: ( nextProps: Props, nextState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ nextContext?: any ) => void ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).componentWillUpdate = boundFcn;
 			return boundFcn;
 		}
-		export function bindComponentDidUpdate<Props, State>(target: React.Component<Props, State>, fcn: (prevProps: Props, prevState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ prevContext?: any) => void) {
-			let boundFcn = __.bind(fcn,target);
-			(target as any).componentDidUpdate = boundFcn;
+		export function bindComponentDidUpdate<Props, State>( target: React.Component<Props, State>, fcn: ( prevProps: Props, prevState: State,/** If contextTypes is defined within a component,will receive an additional parameter, the context object */ prevContext?: any ) => void ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).componentDidUpdate = boundFcn;
 			return boundFcn;
 		}
 
-		export function bindComponentWillUnmount<Props, State>(target: React.Component<Props, State>, fcn: () => void) {
-			let boundFcn = __.bind(fcn,target);
-			(target as any).componentWillUnmount = boundFcn;
+		export function bindComponentWillUnmount<Props, State>( target: React.Component<Props, State>, fcn: () => void ) {
+			let boundFcn = __.bind( fcn, target );
+			( target as any ).componentWillUnmount = boundFcn;
 			return boundFcn;
 		}
 	}
@@ -281,9 +331,22 @@ export module reduxHelpers {
 
 	/** the output of all redux actions should be in this form */
 	export interface IReduxActionResult<TValue> {
-		type: string;  //required by redux
-		value: TValue; // our opinionated encapsulation of state changes
+		/** required by redux, informs what reducer should get this 'action' to process*/
+		type: string;
+		/** our opinionated encapsulation of state changes*/
+		value: TValue;
 	}
+
+	/** the output of all redux actions should be in this form */
+	export interface IReduxActionResultPromise<TValue> {
+		/** required by redux, informs what reducer should get this 'action' to process*/
+		type: string;
+		/** use the "redux-promise-middleware" to allow passing promises */
+		payload?: Promise<TValue>;
+	}
+
+
+
 	/** interface for our blib redux state pattern.  to simplify + modularize redux state management */
 	export interface IReduxStateModule {
 		/** a "init helper" sub-module */
@@ -310,7 +373,7 @@ export module reduxHelpers {
 	 * handles all the bootstrapping (initialization) of react+redux+reactRouterRedux applications.   just make sure you pass in your redux-states in the "IReduxStateModule" format to the function parameters.
 	 * @param _ezStates
 	 */
-	export function initReactReduxRouterApplication(..._ezStates: IReduxStateModule[]) {
+	export function initReactReduxRouterApplication( ..._ezStates: IReduxStateModule[] ) {
 
 
 		//let _ezStates: blib.reduxHelpers.IReduxStateModule[] = [];
@@ -332,8 +395,8 @@ export module reduxHelpers {
 		const middleware = Redux.applyMiddleware(
 
 			/** need to apply this to use the push method,  see: https://github.com/reactjs/react-router-redux#what-if-i-want-to-issue-navigation-events-via-redux-actions or https://github.com/reactjs/react-router-redux/issues/366 */
-			ReactRouterRedux.routerMiddleware(history),
-			ReduxLogger({
+			ReactRouterRedux.routerMiddleware( history ),
+			ReduxLogger( {
 				collapsed: true,
 				diff: true,
 				////experimenting to see if we can remove diff if no diff occurs.   guess not.
@@ -344,7 +407,10 @@ export module reduxHelpers {
 				//    return true;
 				//},
 			}),
+			reduxPromise,
+			//promiseMiddleware(),
 			//redux-thunk goes here too
+
 		);
 
 
@@ -353,7 +419,7 @@ export module reduxHelpers {
 		// get the extension from here:  https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd
 
 		//procedurally inject the redux devtools extension if it's present
-		const composeEnhancers = (window as any)["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"] || Redux.compose;
+		const composeEnhancers = ( window as any )[ "__REDUX_DEVTOOLS_EXTENSION_COMPOSE__" ] || Redux.compose;
 
 
 
@@ -361,26 +427,26 @@ export module reduxHelpers {
 		let _rawReducers: Redux.ReducersMapObject = {};
 
 		/** start final redux state module initializations */
-		__.forEach(_ezStates, (state) => {
-			state._init.initializeStart(_rawReducers);
+		__.forEach( _ezStates, ( state ) => {
+			state._init.initializeStart( _rawReducers );
 		});
-		_rawReducers["routing"] = ReactRouterRedux.routerReducer; //include our routing module
+		_rawReducers[ "routing" ] = ReactRouterRedux.routerReducer; //include our routing module
 		/**
 		 *  //create a single reducer function from our components
 		 */
-		const reducer = Redux.combineReducers(_rawReducers);
+		const reducer = Redux.combineReducers( _rawReducers );
 
 		/**
 		 * the whole state tree of the app  use actions to manipulate 
 		 */
-		const reduxStore = Redux.createStore(reducer,
-			composeEnhancers(middleware)
+		const reduxStore = Redux.createStore( reducer,
+			composeEnhancers( middleware )
 		);
-		ReactRouterRedux.syncHistoryWithStore(history, reduxStore);
+		ReactRouterRedux.syncHistoryWithStore( history, reduxStore );
 
 		/** finish final redux state module initializations */
-		__.forEach(_ezStates, (state) => {
-			state._init.initializeFinish(reduxStore);
+		__.forEach( _ezStates, ( state ) => {
+			state._init.initializeFinish( reduxStore );
 		});
 
 
@@ -393,7 +459,9 @@ export module reduxHelpers {
 	 * see the auth module for example code.
 	 */
 	export function reduxConnect<TComponentClass extends typeof React.Component>(
+		/** the component that you want bound to redux */
 		ComponentClass: TComponentClass,
+		/** an array of the redux states you want sent to your component as a prop.   example:  "auth" via the auth modules auth.reduxState.authKey property */
 		states: string[] = [],
 		actions: {}[] = [],
 	) {
@@ -411,24 +479,33 @@ export module reduxHelpers {
 		//////////////////////////
 		///   merge actions into 1 pojo
 		let mapDispatchToProps: any;
-		if (actions == null || actions.length == 0) {
+		if ( actions == null || actions.length == 0 ) {
 			mapDispatchToProps = {};
 		} else {
 			mapDispatchToProps = {};
-			__.forEach(actions, (value, index) => {
-				_.merge(mapDispatchToProps, value);
+			__.forEach( actions, ( value, index ) => {
+				_.merge( mapDispatchToProps, value );
 			});
 		}
 		//////////////////////////
-		/// construct state map fcn, if any
+		/// construct "mapStatesToProps"" state map fcn, if any
+		/// this will be called for every mounted reduxConnected component every time any redux state is changed, sending the component the latest redux store state.
+		/// it is critical that you don't clone the state like I did previously (see commented _clone() line below) 
+		/// otherwise each component will detect that it's redux state-->prop has changed and force an update+redraw
 		let mapStatesToProps: any;
-		if (states == null || states.length == 0) {
+		if ( states == null || states.length == 0 ) {
 			mapStatesToProps = null;
 		} else {
-			mapStatesToProps = (reduxStoreState: any) => {
+			mapStatesToProps = (
+				/** the redux store. a key-value pojo store  */
+				reduxStoreState: any,
+				/** not sure what arg2 is supposed to be, but it seems to be other props sent to the component */
+				arg2: any
+			) => {
+				//grab all the states that this component is interested in, and return them
 				let targetStates: any = {};
-				__.forEach(states, (stateKey) => {
-					targetStates[stateKey] = _.clone(reduxStoreState[stateKey]);
+				__.forEach( states, ( stateKey ) => {
+					targetStates[ stateKey ] = reduxStoreState[ stateKey ];// _.clone(reduxStoreState[stateKey]);
 				});
 				return targetStates;
 			};
@@ -436,7 +513,7 @@ export module reduxHelpers {
 
 		//do redux Connect
 
-		return ReactRedux.connect(mapStatesToProps, mapDispatchToProps)(ComponentClass) as TComponentClass;
+		return ReactRedux.connect( mapStatesToProps, mapDispatchToProps )( ComponentClass ) as TComponentClass;
 
 
 
@@ -445,17 +522,17 @@ export module reduxHelpers {
 }
 
 /** easy cookie query and manipulation.  https://www.npmjs.com/package/js-cookie */
-export import Cookie = require("js-cookie");
+export import Cookie = require( "js-cookie" );
 
 declare const ga: any;
 /**
  * if you have google analytics installed, this allows you to call it.  if ga isn't installed, any calls to this are nooped
  */
-export var googleAnalytics: any = <any>function (...args: any[]) {
-	if (typeof ga === "undefined") {
+export var googleAnalytics: any = <any>function ( ...args: any[] ) {
+	if ( typeof ga === "undefined" ) {
 		return;
 	}
-	return ga.apply(ga, args);
+	return ga.apply( ga, args );
 }
 
 /**
@@ -463,25 +540,25 @@ export var googleAnalytics: any = <any>function (...args: any[]) {
  */
 export function ga_ezSpaPageHit() {
 	//send page hit
-	let spaId = document.location.pathname + xlib.stringHelper.removeAfter(document.location.hash, "?");
-	googleAnalytics("set", "page", spaId);
-	googleAnalytics("send", "pageview");
+	let spaId = document.location.pathname + xlib.stringHelper.removeAfter( document.location.hash, "?" );
+	googleAnalytics( "set", "page", spaId );
+	googleAnalytics( "send", "pageview" );
 }
 
 /** works with v4 too  https://www.npmjs.com/package/react-bootstrap */
-export import ReactBootstrap = require("react-bootstrap");
+export import ReactBootstrap = require( "react-bootstrap" );
 
 /**
  *  npm react-stripe-checkout
  */
-export var reactStripeCheckout = require("react-stripe-checkout");
+export var reactStripeCheckout = require( "react-stripe-checkout" );
 
 
 /**
  *  React-Loader, docs here: https://github.com/quickleft/react-loader
 easiest way to use example:  <ReactLoader loaded={this.isLoaded}>Finished Loading! put the content you wait on here.</ReactLoader>
  */
-export var ReactLoader: React.ComponentClass<{ loaded: boolean }> = require("react-loader");
+export var ReactLoader: React.ComponentClass<{ loaded: boolean }> = require( "react-loader" );
 
 
 
@@ -514,7 +591,7 @@ export let ReactRecaptcha: React.ComponentClass<{
 	/** 	The API client key*/
 	sitekey: string;
 	/**The function to be called when the user completes successfully the captcha*/
-	onChange: (captchaResponse: string) => void;
+	onChange: ( captchaResponse: string ) => void;
 	/**optional "light" or "dark" The them of the widget (defaults: light)*/
 	theme?: string;//"light" | "dark";
 	/** optional "image" or "audio" The type of initial captcha (defaults: image)*/
@@ -525,7 +602,7 @@ export let ReactRecaptcha: React.ComponentClass<{
 	onExpired?: () => void;
 	/**optional set the stoken parameter, which allows the captcha to be used from different domains, see reCAPTCHA secure-token*/
 	stoken?: string;
-}> = require("react-google-recaptcha");
+}> = require( "react-google-recaptcha" );
 
 /** common react components */
-export import reactCommonComponents = require("./react-common-components");
+export import reactCommonComponents = require( "./react-common-components" );
