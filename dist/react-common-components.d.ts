@@ -44,6 +44,7 @@ export interface IEzModalShowOptions {
 }
 /**
  * a simple, preformatted modal.   use from the parent Component:  ```this.refs["NAME"].Show()``` where NAME is the value of the ref property
+ * OBSOLETE:  use EzPopup instead
  */
 export declare class EzModal extends React.Component<{
     ref: string;
@@ -58,8 +59,8 @@ export declare class EzModal extends React.Component<{
     render(): JSX.Element;
     private _modalClosePromise;
     Show(title: string | JSX.Element, message: string | JSX.Element, details?: string | JSX.Element, options?: IEzModalShowOptions): Promise<void>;
-    CloseConfirm(): void;
-    CloseCancel(): void;
+    CloseConfirm: () => void;
+    CloseCancel: () => void;
 }
 export declare module StripeCheckout {
     interface IStripeCheckoutOptions {
@@ -121,9 +122,13 @@ export declare function Card(props: {
  * great for async callback operations
  */
 export declare class SpinnerButton extends React.Component<{
+    /** if you want an external process to control the load state, you can force unloaded state by setting props.isLoaded=false */
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => Promise<any>;
-    /** set to true to force the button to be disabled */
-    isDisabled?: boolean;
+    /** set to true to force the button to be disabled, doesn't impact the Spinner "waiting" state. */
+    disabled?: boolean;
+    /** set this property to false to force the spinner to the "Loading" status, even if it's promise is resolved. */
+    isLoaded?: boolean;
+    className?: string;
 }, {
     onClickPromise: Promise<any> & {
         isMounted: boolean;

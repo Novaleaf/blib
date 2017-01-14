@@ -24,8 +24,11 @@ import Redux = blib.Redux;
 import ReactRedux = blib.ReactRedux;
 import ReactRouter = blib.ReactRouter; //tested with 1.x, not sure if it works with 2.x
 //import History = blib.History;
-import ReactBootstrap = blib.ReactBootstrap;
+//import ReactBootstrap = blib.ReactBootstrap;
+const ReactStrap = blib.ReactStrap;
 import ReactRouterRedux = blib.ReactRouterRedux;
+
+
 
 //import ioDatatypes = refs.ioDatatypes;
 ////////////////////////////////////////////////////////////////
@@ -73,6 +76,7 @@ export interface IEzModalShowOptions {
 
 /**
  * a simple, preformatted modal.   use from the parent Component:  ```this.refs["NAME"].Show()``` where NAME is the value of the ref property
+ * OBSOLETE:  use EzPopup instead
  */
 export class EzModal extends React.Component<{ ref: string }, {
 	isOpen: boolean;
@@ -85,6 +89,7 @@ export class EzModal extends React.Component<{ ref: string }, {
 	constructor( props: any ) {
 		super( props );
 		this.state = { isOpen: false, title: undefined, message: undefined, details: undefined, showOptions: {} };
+		log.deprecated(`${xlib.reflection.getTypeName(this)} is deprecated due to poor design.  use EzPopup instead`);
 	}
 
 	//componentDidMount() {
@@ -95,47 +100,42 @@ export class EzModal extends React.Component<{ ref: string }, {
 
 	render() {
 
-		const Modal = ReactBootstrap.Modal;
-		const Button = ReactBootstrap.Button;
+		//const Modal = ReactBootstrap.Modal;
+		//const Button = ReactBootstrap.Button;
 		let buttonJsx: JSX.Element;
-		let onHideClick: Function;
 
 		if ( this.state.showOptions == null ) {
 			throw log.error( "showOptions null", { state: this.state });
 		}
 
 		if ( this.state.showOptions.confirmButtonText == null ) {
-			buttonJsx = <Button className="btn-primary" onClick={ this.CloseConfirm.bind( this ) }> Close </Button>;
-			onHideClick = this.CloseConfirm.bind( this );
+			buttonJsx = <ReactStrap.Button className="btn-primary" onClick={ this.CloseConfirm }> Close </ReactStrap.Button>;
 		} else {
 			buttonJsx = <span>
-				<Button onClick={ this.CloseCancel.bind( this ) }>Cancel </Button>
-				<Button className="btn-primary" onClick={ this.CloseConfirm.bind( this ) } > { this.state.showOptions.confirmButtonText } </Button>
+			
+				<ReactStrap.Button onClick={ this.CloseCancel }>Cancel </ReactStrap.Button>
+				<ReactStrap.Button className="btn-primary" onClick={ this.CloseConfirm } > { this.state.showOptions.confirmButtonText } </ReactStrap.Button>
 			</span>
 				;
 
-			onHideClick = this.CloseCancel.bind( this );
 		}
 
 
 		//TODO:  how to pass args to function?
 		return (
 			<div>
-				<Modal show={ this.state.isOpen } onHide={ onHideClick } backdrop={ this.state.showOptions.nonModal === true ? true : "static" } >
-
-					<Modal.Header closeButton>
-						<Modal.Title>{ this.state.title } </Modal.Title>
-					</Modal.Header>
-					< Modal.Body >
+				<ReactStrap.Modal isOpen={ this.state.isOpen } toggle={ this.CloseConfirm } backdrop={ this.state.showOptions.nonModal === true ? true : "static" } >
+					<ReactStrap.ModalHeader toggle={ this.CloseConfirm } >{ this.state.title }					</ReactStrap.ModalHeader>
+					< ReactStrap.ModalBody >
 						<div className="row" >
 							<div className="col-sm-12" > { this.state.message } </div>
 							< div className="col-sm-12" > <pre>{ this.state.details } </pre></div >
 						</div>
-					</Modal.Body>
-					< Modal.Footer >
+					</ReactStrap.ModalBody>
+					< ReactStrap.ModalFooter >
 						{ buttonJsx }
-					</Modal.Footer>
-				</Modal>
+					</ReactStrap.ModalFooter>
+				</ReactStrap.Modal>
 			</div>
 		);
 	}
@@ -158,7 +158,7 @@ export class EzModal extends React.Component<{ ref: string }, {
 
 	}
 
-	public CloseConfirm() {
+	public CloseConfirm =()=> {
 		//log.assert(false);
 		this.setState( { isOpen: false });
 		if ( this._modalClosePromise != null ) {
@@ -167,7 +167,7 @@ export class EzModal extends React.Component<{ ref: string }, {
 			tempPromise.resolve( undefined );
 		}
 	}
-	public CloseCancel() {
+	public CloseCancel=()=> {
 		//log.assert(false);
 		this.setState( { isOpen: false });
 		if ( this._modalClosePromise != null ) {
@@ -343,9 +343,13 @@ export function Card( props: { children?: React.ReactNode }) {
  * great for async callback operations
  */
 export class SpinnerButton extends React.Component<{
-	onClick: ( event: React.MouseEvent<HTMLButtonElement> ) => Promise<any>,
-	/** set to true to force the button to be disabled */
-	isDisabled?: boolean
+	/** if you want an external process to control the load state, you can force unloaded state by setting props.isLoaded=false */
+	onClick: ( event: React.MouseEvent<HTMLButtonElement> ) => Promise<any>;
+	/** set to true to force the button to be disabled, doesn't impact the Spinner "waiting" state. */
+	disabled?: boolean;
+	/** set this property to false to force the spinner to the "Loading" status, even if it's promise is resolved. */
+	isLoaded?: boolean;
+	className?:string;
 }, { onClickPromise: Promise<any> & { /** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/ isMounted: boolean } }>{
 
 	constructor( props: any ) {
@@ -376,13 +380,15 @@ export class SpinnerButton extends React.Component<{
 
 	render() {
 
+		const {isLoaded, onClick, ...otherProps} = this.props;
 		return (
 
 			<button
 				onClick={ this._onClick }
-				disabled={ this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true }
+				disabled={ this.state.onClickPromise.isResolved() === false || this.props.disabled === true || this.props.isLoaded === false }
+				{...otherProps}
 				>
-				<blib.ReactLoader loaded={ ( this.state.onClickPromise.isResolved() ) } />
+				<blib.ReactLoader loaded={ ( this.state.onClickPromise.isResolved() && this.props.isLoaded !== false ) } />
 				{ this.props.children }
 
 			</button>

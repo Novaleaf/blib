@@ -194,7 +194,10 @@ export declare var googleAnalytics: any;
  */
 export declare function ga_ezSpaPageHit(): void;
 /** works with v4 too  https://www.npmjs.com/package/react-bootstrap */
-export import ReactBootstrap = require("react-bootstrap");
+import _reactstrap = require("./_dts/reactstrap");
+export declare const ReactStrap: typeof _reactstrap.reactstrap;
+/** shim ReactStrap into ReactBootstrap */
+export declare const ReactBootstrap: typeof _reactstrap.reactstrap;
 /**
  *  npm react-stripe-checkout
  */

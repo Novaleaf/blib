@@ -32,6 +32,7 @@ exports.ReduxLogger = ReduxLogger;
 // export import ReactDataGrid = require("react-data-grid");
 // export import ReactDataGridPlugins = require("react-data-grid/addons");
 exports.fixedDataTable = require("fixed-data-table");
+// import 'bootstrap/dist/css/bootstrap.css';
 //export let ReduxLogger: {} = require("redux-logger");
 const log = new xlib.logging.Logger(__filename);
 //import ReactJsfForm from "react-jsonschema-form";
@@ -337,7 +338,12 @@ function ga_ezSpaPageHit() {
 }
 exports.ga_ezSpaPageHit = ga_ezSpaPageHit;
 /** works with v4 too  https://www.npmjs.com/package/react-bootstrap */
-exports.ReactBootstrap = require("react-bootstrap");
+//export import ReactBootstrap = require( "react-bootstrap" );
+const _reactstrap = require("./_dts/reactstrap");
+exports.ReactStrap = _reactstrap.ReactStrap;
+/** shim ReactStrap into ReactBootstrap */
+exports.ReactBootstrap = exports.ReactStrap;
+//export const rs: typeof ReactBootstrap = require("reactstrap");
 /**
  *  npm react-stripe-checkout
  */

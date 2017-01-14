@@ -1,4 +1,21 @@
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 const blib = require("./_index");
 const xlib = require("xlib");
 var _ = xlib.lodash;
@@ -6,7 +23,8 @@ var log = new xlib.logging.Logger(__filename);
 var Promise = xlib.promise.bluebird;
 var React = blib.React;
 //import History = blib.History;
-var ReactBootstrap = blib.ReactBootstrap;
+//import ReactBootstrap = blib.ReactBootstrap;
+const ReactStrap = blib.ReactStrap;
 class ReactRouterComponent extends React.Component {
 }
 exports.ReactRouterComponent = ReactRouterComponent;
@@ -18,46 +36,62 @@ class _GenericJsxComponent extends React.Component {
 exports._GenericJsxComponent = _GenericJsxComponent;
 /**
  * a simple, preformatted modal.   use from the parent Component:  ```this.refs["NAME"].Show()``` where NAME is the value of the ref property
+ * OBSOLETE:  use EzPopup instead
  */
 class EzModal extends React.Component {
     constructor(props) {
         super(props);
         this._modalClosePromise = null;
+        this.CloseConfirm = () => {
+            //log.assert(false);
+            this.setState({ isOpen: false });
+            if (this._modalClosePromise != null) {
+                let tempPromise = this._modalClosePromise;
+                this._modalClosePromise = null;
+                tempPromise.resolve(undefined);
+            }
+        };
+        this.CloseCancel = () => {
+            //log.assert(false);
+            this.setState({ isOpen: false });
+            if (this._modalClosePromise != null) {
+                let tempPromise = this._modalClosePromise;
+                this._modalClosePromise = null;
+                tempPromise.reject(undefined);
+            }
+        };
         this.state = { isOpen: false, title: undefined, message: undefined, details: undefined, showOptions: {} };
+        log.deprecated(`${xlib.reflection.getTypeName(this)} is deprecated due to poor design.  use EzPopup instead`);
     }
     //componentDidMount() {
     //    //look for querystrings
     //    log.info("EzModal props", this.props);
     //}
     render() {
-        const Modal = ReactBootstrap.Modal;
-        const Button = ReactBootstrap.Button;
+        //const Modal = ReactBootstrap.Modal;
+        //const Button = ReactBootstrap.Button;
         let buttonJsx;
-        let onHideClick;
         if (this.state.showOptions == null) {
             throw log.error("showOptions null", { state: this.state });
         }
         if (this.state.showOptions.confirmButtonText == null) {
-            buttonJsx = React.createElement(Button, { className: "btn-primary", onClick: this.CloseConfirm.bind(this) }, " Close ");
-            onHideClick = this.CloseConfirm.bind(this);
+            buttonJsx = React.createElement(ReactStrap.Button, { className: "btn-primary", onClick: this.CloseConfirm }, " Close ");
         }
         else {
             buttonJsx = React.createElement("span", null,
-                React.createElement(Button, { onClick: this.CloseCancel.bind(this) }, "Cancel "),
-                React.createElement(Button, { className: "btn-primary", onClick: this.CloseConfirm.bind(this) },
+                React.createElement(ReactStrap.Button, { onClick: this.CloseCancel }, "Cancel "),
+                React.createElement(ReactStrap.Button, { className: "btn-primary", onClick: this.CloseConfirm },
                     " ",
                     this.state.showOptions.confirmButtonText,
                     " "));
-            onHideClick = this.CloseCancel.bind(this);
         }
         //TODO:  how to pass args to function?
         return (React.createElement("div", null,
-            React.createElement(Modal, { show: this.state.isOpen, onHide: onHideClick, backdrop: this.state.showOptions.nonModal === true ? true : "static" },
-                React.createElement(Modal.Header, { closeButton: true },
-                    React.createElement(Modal.Title, null,
-                        this.state.title,
-                        " ")),
-                React.createElement(Modal.Body, null,
+            React.createElement(ReactStrap.Modal, { isOpen: this.state.isOpen, toggle: this.CloseConfirm, backdrop: this.state.showOptions.nonModal === true ? true : "static" },
+                React.createElement(ReactStrap.ModalHeader, { toggle: this.CloseConfirm },
+                    this.state.title,
+                    "\t\t\t\t\t"),
+                React.createElement(ReactStrap.ModalBody, null,
                     React.createElement("div", { className: "row" },
                         React.createElement("div", { className: "col-sm-12" },
                             " ",
@@ -68,7 +102,7 @@ class EzModal extends React.Component {
                             React.createElement("pre", null,
                                 this.state.details,
                                 " ")))),
-                React.createElement(Modal.Footer, null, buttonJsx))));
+                React.createElement(ReactStrap.ModalFooter, null, buttonJsx))));
     }
     Show(title, message, details, options) {
         //log.assert(false);
@@ -80,24 +114,6 @@ class EzModal extends React.Component {
         }
         this.setState({ isOpen: true, title, message, details, showOptions: options });
         return this._modalClosePromise;
-    }
-    CloseConfirm() {
-        //log.assert(false);
-        this.setState({ isOpen: false });
-        if (this._modalClosePromise != null) {
-            let tempPromise = this._modalClosePromise;
-            this._modalClosePromise = null;
-            tempPromise.resolve(undefined);
-        }
-    }
-    CloseCancel() {
-        //log.assert(false);
-        this.setState({ isOpen: false });
-        if (this._modalClosePromise != null) {
-            let tempPromise = this._modalClosePromise;
-            this._modalClosePromise = null;
-            tempPromise.reject(undefined);
-        }
     }
 }
 exports.EzModal = EzModal;
@@ -234,8 +250,9 @@ class SpinnerButton extends React.Component {
         this.state.onClickPromise.isMounted = false;
     }
     render() {
-        return (React.createElement("button", { onClick: this._onClick, disabled: this.state.onClickPromise.isResolved() === false || this.props.isDisabled === true },
-            React.createElement(blib.ReactLoader, { loaded: (this.state.onClickPromise.isResolved()) }),
+        const _a = this.props, { isLoaded, onClick } = _a, otherProps = __rest(_a, ["isLoaded", "onClick"]);
+        return (React.createElement("button", __assign({ onClick: this._onClick, disabled: this.state.onClickPromise.isResolved() === false || this.props.disabled === true || this.props.isLoaded === false }, otherProps),
+            React.createElement(blib.ReactLoader, { loaded: (this.state.onClickPromise.isResolved() && this.props.isLoaded !== false) }),
             this.props.children));
     }
 }
