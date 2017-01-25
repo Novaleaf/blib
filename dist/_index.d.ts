@@ -209,6 +209,8 @@ easiest way to use example:  <ReactLoader loaded={this.isLoaded}>Finished Loadin
 export declare var ReactLoader: React.ComponentClass<{
     loaded: boolean;
 }>;
+export import _ReactBootstrapTypeahead_Definitions = require("./_dts/react-bootstrap-typeahead");
+export declare const ReactBootstrapTypeahead: typeof _ReactBootstrapTypeahead_Definitions.react_bootstrap_typeahead;
 /**
  *  npm react-google-recaptcha
 https://github.com/dozoisch/react-google-recaptcha

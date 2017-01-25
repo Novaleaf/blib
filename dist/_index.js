@@ -32,6 +32,8 @@ exports.ReduxLogger = ReduxLogger;
 // export import ReactDataGrid = require("react-data-grid");
 // export import ReactDataGridPlugins = require("react-data-grid/addons");
 exports.fixedDataTable = require("fixed-data-table");
+/** load the css, works with webpack css-loader plugin */
+const _fdt_css = require("fixed-data-table/dist/fixed-data-table.min.css");
 // import 'bootstrap/dist/css/bootstrap.css';
 //export let ReduxLogger: {} = require("redux-logger");
 const log = new xlib.logging.Logger(__filename);
@@ -353,6 +355,14 @@ exports.reactStripeCheckout = require("react-stripe-checkout");
 easiest way to use example:  <ReactLoader loaded={this.isLoaded}>Finished Loading! put the content you wait on here.</ReactLoader>
  */
 exports.ReactLoader = require("react-loader");
+exports._ReactBootstrapTypeahead_Definitions = require("./_dts/react-bootstrap-typeahead");
+exports.ReactBootstrapTypeahead = exports._ReactBootstrapTypeahead_Definitions.ReactBootstrapTypeahead;
+//export const ReactBootstrapTypeahead_Definitions = _reactBootstrapTypeahead.react_bootstrap_typeahead;
+/** load the css, works with webpack css-loader plugin */
+const _rbt_token_css = require("react-bootstrap-typeahead/css/Token.css");
+const _rbt_typeahead_css = require("react-bootstrap-typeahead/css/Typeahead.css");
+const _rbt_loader_css = require("react-bootstrap-typeahead/css/Loader.css");
+const _rbt_clearbutton_css = require("react-bootstrap-typeahead/css/ClearButton.css");
 /**
  *  npm react-google-recaptcha
 https://github.com/dozoisch/react-google-recaptcha

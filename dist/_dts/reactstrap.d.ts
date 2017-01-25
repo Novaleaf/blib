@@ -664,14 +664,6 @@ export declare namespace reactstrap {
     }
     type InputGroup = React.Component<InputGroupProps, {}>;
     var InputGroup: InputGroupClass;
-    class Input extends React.Component<{
-        addon?: boolean;
-        type: string;
-        "aria-label"?: string;
-        placeholder?: string;
-        step?: string;
-    }, {}> {
-    }
     interface InputGroupAddonProps extends React.HTMLProps<InputGroupAddon> {
     }
     type InputGroupAddon = React.ClassicComponent<InputGroupAddonProps, {}>;
