@@ -9,6 +9,7 @@ import * as ReactRedux from "react-redux";
 export { ReactRedux };
 import * as xlib from "xlib";
 export { xlib };
+export import jquery = require("jquery");
 import * as ReactRouter from "react-router";
 export { ReactRouter };
 import * as ReactRouterRedux from "react-router-redux";

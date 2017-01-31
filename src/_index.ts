@@ -1,4 +1,5 @@
 ﻿
+
 import * as React from "react";
 export { React };
 
@@ -19,6 +20,14 @@ import * as xlib from "xlib";
 export { xlib };
 import _ = xlib.lodash;
 
+export import jquery = require( "jquery" );
+/** setup jquery globals, if not already set */
+if ( xlib.environment.getGlobal()[ "$" ] == null ) {
+	xlib.environment.getGlobal()[ "$" ] = jquery;
+}
+if ( xlib.environment.getGlobal()[ "jQuery" ] == null ) {
+	xlib.environment.getGlobal()[ "jQuery" ] = jquery;
+}
 
 import * as ReactRouter from "react-router";
 export { ReactRouter };
@@ -32,11 +41,13 @@ export { ReduxLogger };
 // export import ReactDataGridPlugins = require("react-data-grid/addons");
 export import fixedDataTable = require( "fixed-data-table" );
 /** load the css, works with webpack css-loader plugin */
-const _fdt_css = require("fixed-data-table/dist/fixed-data-table.min.css");
+const _fdt_css = require( "fixed-data-table/dist/fixed-data-table.min.css" );
+
 
 
 // import 'bootstrap/dist/css/bootstrap.css';
 //export let ReduxLogger: {} = require("redux-logger");
+
 
 
 const log = new xlib.logging.Logger( __filename );
@@ -550,7 +561,7 @@ export function ga_ezSpaPageHit() {
 
 /** works with v4 too  https://www.npmjs.com/package/react-bootstrap */
 //export import ReactBootstrap = require( "react-bootstrap" );
-import _reactstrap = require("./_dts/reactstrap");
+import _reactstrap = require( "./_dts/reactstrap" );
 export const ReactStrap = _reactstrap.ReactStrap;
 /** shim ReactStrap into ReactBootstrap */
 export const ReactBootstrap = ReactStrap;
@@ -568,14 +579,14 @@ easiest way to use example:  <ReactLoader loaded={this.isLoaded}>Finished Loadin
  */
 export var ReactLoader: React.ComponentClass<{ loaded: boolean }> = require( "react-loader" );
 
-export import _ReactBootstrapTypeahead_Definitions = require("./_dts/react-bootstrap-typeahead");
+export import _ReactBootstrapTypeahead_Definitions = require( "./_dts/react-bootstrap-typeahead" );
 export const ReactBootstrapTypeahead = _ReactBootstrapTypeahead_Definitions.ReactBootstrapTypeahead;
 //export const ReactBootstrapTypeahead_Definitions = _reactBootstrapTypeahead.react_bootstrap_typeahead;
 /** load the css, works with webpack css-loader plugin */
-const _rbt_token_css = require("react-bootstrap-typeahead/css/Token.css");
-const _rbt_typeahead_css = require("react-bootstrap-typeahead/css/Typeahead.css");
-const _rbt_loader_css = require("react-bootstrap-typeahead/css/Loader.css");
-const _rbt_clearbutton_css = require("react-bootstrap-typeahead/css/ClearButton.css");
+const _rbt_token_css = require( "react-bootstrap-typeahead/css/Token.css" );
+const _rbt_typeahead_css = require( "react-bootstrap-typeahead/css/Typeahead.css" );
+const _rbt_loader_css = require( "react-bootstrap-typeahead/css/Loader.css" );
+const _rbt_clearbutton_css = require( "react-bootstrap-typeahead/css/ClearButton.css" );
 
 
 /**

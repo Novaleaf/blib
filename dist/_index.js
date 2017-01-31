@@ -22,6 +22,14 @@ const reduxPromise = require("redux-promise");
 const xlib = require("xlib");
 exports.xlib = xlib;
 var _ = xlib.lodash;
+exports.jquery = require("jquery");
+/** setup jquery globals, if not already set */
+if (xlib.environment.getGlobal()["$"] == null) {
+    xlib.environment.getGlobal()["$"] = exports.jquery;
+}
+if (xlib.environment.getGlobal()["jQuery"] == null) {
+    xlib.environment.getGlobal()["jQuery"] = exports.jquery;
+}
 const ReactRouter = require("react-router");
 exports.ReactRouter = ReactRouter;
 const ReactRouterRedux = require("react-router-redux");

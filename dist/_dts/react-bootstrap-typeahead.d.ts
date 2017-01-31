@@ -52,8 +52,9 @@ export declare namespace react_bootstrap_typeahead {
          * Custom callback:  You can also pass your own callback to take complete control over how the filtering works. Note that the caseSensitive prop will no longer work in this case, since you are now completely overriding the algorithm.
          *
         */
-        filterBy?: (option: IDataOption) => boolean | string[];
-        /** 	Allows you to control the contents of the selection. If set to a string, will use that property of the selected option. It can also be set to a function, with one argument (the selected option) and returning a string for rendering.
+        filterBy?: string[] | ((option: IDataOption) => boolean);
+        /** 	Allows you to control the contents of the selection. If set to a string, will use that property of the selected option.
+         * It can also be set to a function, with one argument (the selected option) and returning a string for rendering.
         <Typeahead		options={options}		labelKey={(option) => {
             // Return custom contents here.
         }}		/> */
