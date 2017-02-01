@@ -1,5 +1,6 @@
 
-import blib = require( "./_index" );
+import reactEco = require( "./_index" );
+import blib = require( "../_index" );
 
 ///////////////////  APP FOLLOWING PATTERNS FROM: http://localhost:8080/auth-with-shared-root/   (react-router example)
 
@@ -8,7 +9,7 @@ import blib = require( "./_index" );
 
 
 
-import Cookie = blib.Cookie;
+//import Cookie = blib.Cookie;
 
 import xlib = require( "xlib" );
 import _ = xlib.lodash;
@@ -18,15 +19,15 @@ var log = new xlib.logging.Logger( __filename );
 import jsHelper = xlib.jsHelper;
 import Promise = xlib.promise.bluebird;
 
-import React = blib.React;
-import ReactDom = blib.ReactDom;
-import Redux = blib.Redux;
-import ReactRedux = blib.ReactRedux;
-import ReactRouter = blib.ReactRouter; //tested with 1.x, not sure if it works with 2.x
+import React = reactEco.React;
+import ReactDom = reactEco.ReactDom;
+import Redux = reactEco.Redux;
+import ReactRedux = reactEco.ReactRedux;
+import ReactRouter = reactEco.ReactRouter; //tested with 1.x, not sure if it works with 2.x
 //import History = blib.History;
 //import ReactBootstrap = blib.ReactBootstrap;
-const ReactStrap = blib.ReactStrap;
-import ReactRouterRedux = blib.ReactRouterRedux;
+const ReactStrap = reactEco.ReactStrap;
+import ReactRouterRedux = reactEco.ReactRouterRedux;
 
 
 
@@ -212,7 +213,7 @@ export module StripeCheckout {
 		zipCodeCheck: false,
 	};
 
-	var StripeCheckout = blib.reactStripeCheckout;
+	var StripeCheckout = reactEco.reactStripeCheckout;
 	/**
 	 * The Stripe Checkout modal, as an API.
 	 * how to use:
@@ -388,7 +389,7 @@ export class SpinnerButton extends React.Component<{
 				disabled={ this.state.onClickPromise.isResolved() === false || this.props.disabled === true || this.props.isLoaded === false }
 				{...otherProps}
 				>
-				<blib.ReactLoader loaded={ ( this.state.onClickPromise.isResolved() && this.props.isLoaded !== false ) } />
+				<reactEco.ReactLoader loaded={ ( this.state.onClickPromise.isResolved() && this.props.isLoaded !== false ) } />
 				{ this.props.children }
 
 			</button>
