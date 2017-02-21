@@ -35,9 +35,12 @@ export { ReduxLogger };
 // /** http://adazzle.github.io/react-data-grid/  */
 // export import ReactDataGrid = require("react-data-grid");
 // export import ReactDataGridPlugins = require("react-data-grid/addons");
-export import fixedDataTable = require( "fixed-data-table" );
+import _fixedDataTable2 = require( "../_dts/fixed-data-table-2" );
+/** uses updated version of fixed-data-table:  https://github.com/schrodinger/fixed-data-table-2  */
+export const fixedDataTable = _fixedDataTable2.FixedDataTable2;
+
 /** load the css, works with webpack css-loader plugin */
-const _fdt_css = require( "fixed-data-table/dist/fixed-data-table.min.css" );
+const _fdt_css = require( "fixed-data-table-2/dist/fixed-data-table.min.css" );
 
 //import ReactJsfForm from "react-jsonschema-form";
 //export { ReactJsfForm };

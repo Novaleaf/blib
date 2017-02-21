@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import * as React from 'react';
 export declare namespace reactstrap {
     type Sizes = 'xs' | 'xsmall' | 'sm' | 'small' | 'medium' | 'lg' | 'large';

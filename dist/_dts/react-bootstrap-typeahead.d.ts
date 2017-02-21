@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import * as React from 'react';
 export declare namespace react_bootstrap_typeahead {
     /** react-bootstrap-typeahead accepts an array of either strings or objects. If you pass in objects, each one should have a string property to be used as the label for display. By default, the key is named label, but you can specify a different key via the labelKey prop. If you pass an array of strings, the labelKey prop will be ignored.

@@ -33,9 +33,11 @@ exports.ReduxLogger = ReduxLogger;
 // /** http://adazzle.github.io/react-data-grid/  */
 // export import ReactDataGrid = require("react-data-grid");
 // export import ReactDataGridPlugins = require("react-data-grid/addons");
-exports.fixedDataTable = require("fixed-data-table");
+const _fixedDataTable2 = require("../_dts/fixed-data-table-2");
+/** uses updated version of fixed-data-table:  https://github.com/schrodinger/fixed-data-table-2  */
+exports.fixedDataTable = _fixedDataTable2.FixedDataTable2;
 /** load the css, works with webpack css-loader plugin */
-const _fdt_css = require("fixed-data-table/dist/fixed-data-table.min.css");
+const _fdt_css = require("fixed-data-table-2/dist/fixed-data-table.min.css");
 //import ReactJsfForm from "react-jsonschema-form";
 //export { ReactJsfForm };
 /** unfortuantely due to stupid "defaults" settings, we can't easily export this for people to use.   need to put our own definitions in place */

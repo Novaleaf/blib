@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import reactEco = require("./_index");
 import xlib = require("xlib");
 import Promise = xlib.promise.bluebird;
