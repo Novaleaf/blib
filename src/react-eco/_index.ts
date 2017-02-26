@@ -34,10 +34,10 @@ export { ReduxLogger };
 
 // /** http://adazzle.github.io/react-data-grid/  */
 // export import ReactDataGrid = require("react-data-grid");
-// export import ReactDataGridPlugins = require("react-data-grid/addons");
-import _fixedDataTable2 = require( "../_dts/fixed-data-table-2" );
+// export import ReactDataGridPlugins = require("react-data-grid/addons")
+
 /** uses updated version of fixed-data-table:  https://github.com/schrodinger/fixed-data-table-2  */
-export const fixedDataTable = _fixedDataTable2.FixedDataTable2;
+export import fixedDataTable = require( "../_dts/fixed-data-table-2" );
 
 /** load the css, works with webpack css-loader plugin */
 const _fdt_css = require( "fixed-data-table-2/dist/fixed-data-table.min.css" );

@@ -14,9 +14,8 @@ import * as ReactRouterRedux from "react-router-redux";
 export { ReactRouterRedux };
 import * as ReduxLogger from "redux-logger";
 export { ReduxLogger };
-import _fixedDataTable2 = require("../_dts/fixed-data-table-2");
 /** uses updated version of fixed-data-table:  https://github.com/schrodinger/fixed-data-table-2  */
-export declare const fixedDataTable: typeof _fixedDataTable2._fixedDataTable2;
+export import fixedDataTable = require("../_dts/fixed-data-table-2");
 /**
  * the npm module "react-jsonschema-form"
  */
