@@ -189,63 +189,64 @@ function getDirections(request, retryAttempt = 0) {
         }
         //make sure our scripts api is loaded first
         return _initializeCompletePromise.then(() => {
-            // _directionsService = new google.maps.DirectionsService();
-            // _directionsService.route( {
-            // 	origin: "chicago, il", //chicago //document.getElementById('start').value,
-            // 	destination: "oklahoma city, ok", //oklahoma city //document.getElementById('end').value,
-            // 	travelMode: 'DRIVING' as any
-            // }, function ( response, status ) {
-            // 	console.error( "whut whut" );
-            // 	if ( status === google.maps.DirectionsStatus.OK ) {
-            // 		console.log( "directionsService call complete", { response, status } );
-            // 	} else {
-            // 		window.alert( 'Directions request failed due to ' + status );
-            // 	}
-            // 	resolve( undefined );
-            // } );
-            let _callback = function (result, status) {
-                //switch PlacesServiceStatus  from https://developers.google.com/maps/documentation/javascript/reference#AutocompleteService
-                switch (status) {
-                    case google.maps.DirectionsStatus.OK:
-                        return resolve(result);
-                    // case google.maps.DirectionsStatus.ZERO_RESULTS:
-                    // 	return resolve( null );
-                    // case google.maps.places.PlacesServiceStatus.UNKNOWN_ERROR:
-                    // 	//try again
-                    // 	if ( retryAttempt > 2 ) {
-                    // 		return reject( new Error( `${ status }:The PlacesService request could not be processed due to a server error.  We retried 3 times and now give up.` ) );
-                    // 	} else {
-                    // 		//retry with backoff
-                    // 		return Promise.delay( retryAttempt * 1000 ).then(() => { return getPlaceDetails( request, retryAttempt + 1 ); });
-                    // 	}
-                    // case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
-                    // 	return reject( new Error( `${ status }:The application has gone over its request quota.` ) );
-                    // case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
-                    // 	return reject( new Error( `${ status }:The application is not allowed to use the PlacesService.` ) );
-                    // case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
-                    // 	return reject( new Error( `${ status }:This request was invalid.` ) );
-                    default:
-                        return reject(new Error(`${status}:Unhandled status type.  please contact devs to investigate blib.mapsApi.getDirections() and provide them this error message.`));
+            _directionsService = new google.maps.DirectionsService();
+            _directionsService.route({
+                origin: "chicago, il",
+                destination: "oklahoma city, ok",
+                travelMode: 'DRIVING'
+            }, function (response, status) {
+                console.error("whut whut");
+                if (status === google.maps.DirectionsStatus.OK) {
+                    console.log("directionsService call complete", { response, status });
                 }
-            };
-            // if ( _mapDiv == null ) {
-            // 	_mapDiv = document.createElement( "div" );
-            // 	_mapDiv.id = "map";
-            // 	document.body.appendChild( _mapDiv );
-            // 	//var map = new google.maps.Map(_mapDiv, {
-            // 	//	center: { lat: -33.866, lng: 151.196 },
-            // 	//	zoom: 15
-            // 	//});
-            // 	//var infowindow = new google.maps.InfoWindow();
-            // }
-            if (_directionsService == null) {
-                _directionsService = new google.maps.DirectionsService();
-            }
-            // if ( _directionsDisplay == null ) {
-            // 	_directionsDisplay = new google.maps.DirectionsRenderer();
-            // }
-            _directionsService.route(request, _callback);
-            //_autocompleteService.getQueryPredictions(requestOptions, _callback);
+                else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+                resolve(undefined);
+            });
+            // // // let _callback = function ( result: google.maps.DirectionsResult, status: google.maps.DirectionsStatus ) {
+            // // // 	//switch PlacesServiceStatus  from https://developers.google.com/maps/documentation/javascript/reference#AutocompleteService
+            // // // 	switch ( status ) {
+            // // // 		case google.maps.DirectionsStatus.OK:
+            // // // 			return resolve( result );
+            // // // 		// case google.maps.DirectionsStatus.ZERO_RESULTS:
+            // // // 		// 	return resolve( null );
+            // // // 		// case google.maps.places.PlacesServiceStatus.UNKNOWN_ERROR:
+            // // // 		// 	//try again
+            // // // 		// 	if ( retryAttempt > 2 ) {
+            // // // 		// 		return reject( new Error( `${ status }:The PlacesService request could not be processed due to a server error.  We retried 3 times and now give up.` ) );
+            // // // 		// 	} else {
+            // // // 		// 		//retry with backoff
+            // // // 		// 		return Promise.delay( retryAttempt * 1000 ).then(() => { return getPlaceDetails( request, retryAttempt + 1 ); });
+            // // // 		// 	}
+            // // // 		// case google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT:
+            // // // 		// 	return reject( new Error( `${ status }:The application has gone over its request quota.` ) );
+            // // // 		// case google.maps.places.PlacesServiceStatus.REQUEST_DENIED:
+            // // // 		// 	return reject( new Error( `${ status }:The application is not allowed to use the PlacesService.` ) );
+            // // // 		// case google.maps.places.PlacesServiceStatus.INVALID_REQUEST:
+            // // // 		// 	return reject( new Error( `${ status }:This request was invalid.` ) );
+            // // // 		default:
+            // // // 			return reject( new Error( `${ status }:Unhandled status type.  please contact devs to investigate blib.mapsApi.getDirections() and provide them this error message.` ) );
+            // // // 	}
+            // // // }
+            // // // // if ( _mapDiv == null ) {
+            // // // // 	_mapDiv = document.createElement( "div" );
+            // // // // 	_mapDiv.id = "map";
+            // // // // 	document.body.appendChild( _mapDiv );
+            // // // // 	//var map = new google.maps.Map(_mapDiv, {
+            // // // // 	//	center: { lat: -33.866, lng: 151.196 },
+            // // // // 	//	zoom: 15
+            // // // // 	//});
+            // // // // 	//var infowindow = new google.maps.InfoWindow();
+            // // // // }
+            // // // if ( _directionsService == null ) {
+            // // // 	_directionsService = new google.maps.DirectionsService();
+            // // // }
+            // // // // if ( _directionsDisplay == null ) {
+            // // // // 	_directionsDisplay = new google.maps.DirectionsRenderer();
+            // // // // }
+            // // // _directionsService.route( request, _callback );
+            // // // //_autocompleteService.getQueryPredictions(requestOptions, _callback);
         });
     });
 }
