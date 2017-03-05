@@ -21,4 +21,7 @@ export declare function getPlaceDetails(request: google.maps.places.PlaceDetails
  * @param request
  * @param retryAttempt
  */
-export declare function getDirections(request: google.maps.DirectionsRequest, retryAttempt?: number): Promise<google.maps.DirectionsResult | null>;
+export declare function getDirections(request: google.maps.DirectionsRequest, retryAttempt?: number): Promise<{
+    result: google.maps.DirectionsResult | null;
+    status: google.maps.DirectionsStatus;
+}>;
