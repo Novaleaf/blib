@@ -16,3 +16,9 @@ export declare function getAutocompletePlacePredictions(requestOptions: google.m
  * @param retryAttempt
  */
 export declare function getPlaceDetails(request: google.maps.places.PlaceDetailsRequest, retryAttempt?: number): Promise<google.maps.places.PlaceResult | null>;
+/**
+ *  https://developers.google.com/maps/documentation/javascript/directions
+ * @param request
+ * @param retryAttempt
+ */
+export declare function getDirections(request: google.maps.DirectionsRequest, retryAttempt?: number): Promise<google.maps.DirectionsResult | null>;

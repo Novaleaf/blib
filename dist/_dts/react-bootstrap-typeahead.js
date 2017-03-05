@@ -1,6 +1,7 @@
 //definitions for the npm module https://github.com/ericgio/react-bootstrap-typeahead
 //definition by JasonS@Novaleaf.com
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const React = require("react");
 /** React Bootstrap Typeahead
 https://github.com/ericgio/react-bootstrap-typeahead

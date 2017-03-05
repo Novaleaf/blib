@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 //hack:  copied d.ts for ReactBootstrap as they have the same signatures, but reactstrap works with bootstrap4
 const React = require("react");
 exports.ReactStrap = require("reactstrap");

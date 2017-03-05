@@ -8,6 +8,7 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const xlib = require("xlib");
 var _ = xlib.lodash;
 const log = new xlib.logging.Logger(__filename);

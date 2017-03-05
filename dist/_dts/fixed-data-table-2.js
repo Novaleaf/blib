@@ -4,6 +4,7 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 2.1
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const React = require("react");
 //export const ReactStrap: typeof reactstrap = require( "reactstrap" );
 // export = FixedDataTable;

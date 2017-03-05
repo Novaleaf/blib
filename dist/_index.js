@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const xlib = require("xlib");
 exports.xlib = xlib;
 const log = new xlib.logging.Logger(__filename);

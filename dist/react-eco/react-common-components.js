@@ -8,6 +8,7 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const reactEco = require("./_index");
 const blib = require("../_index");
 ///////////////////  APP FOLLOWING PATTERNS FROM: http://localhost:8080/auth-with-shared-root/   (react-router example)
