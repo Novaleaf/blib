@@ -1,3 +1,5 @@
+/// <reference types="react" />
+/// <reference types="bluebird" />
 import * as xlib from "xlib";
 import Promise = xlib.promise.bluebird;
 import * as React from "react";

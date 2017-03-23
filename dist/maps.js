@@ -234,7 +234,8 @@ function getDirections(request, retryAttempt = 0) {
                     case google.maps.DirectionsStatus.REQUEST_DENIED:
                         return reject(new Error(`${status}:The application is not allowed to use the DirectionsService.`));
                     case google.maps.DirectionsStatus.INVALID_REQUEST:
-                        return reject(new Error(`${status}:This request was invalid.`));
+                        //return reject( new Error( `${ status }:This request was invalid.` ) );
+                        return reject(new xlib.exception.Exception(`${status}:This request was invalid.`, { data: { result, status } }));
                     default:
                         return reject(new Error(`${status}:Unhandled status type.  please contact devs to investigate blib.mapsApi.getDirections() and provide them this error message.`));
                 }

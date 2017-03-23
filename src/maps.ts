@@ -234,7 +234,7 @@ let _directionsDisplay: HTMLDivElement;
  * @param request
  * @param retryAttempt
  */
-export function getDirections( request: google.maps.DirectionsRequest, retryAttempt = 0 ): Promise<{result:google.maps.DirectionsResult | null, status:google.maps.DirectionsStatus}> {
+export function getDirections( request: google.maps.DirectionsRequest, retryAttempt = 0 ): Promise<{ result: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus }> {
 
 	log.errorAndThrowIfFalse( _initializeCompletePromise != null, "need to call maps.initialize() first" );
 
@@ -243,11 +243,15 @@ export function getDirections( request: google.maps.DirectionsRequest, retryAtte
 		return Promise.reject( log.error( "request is missing origin and/or destination", { request } ) );
 	}
 
-	return new Promise<{result:google.maps.DirectionsResult | null, status:google.maps.DirectionsStatus}>(( resolve, reject ) => {
+	return new Promise<{ result: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus }>(( resolve, reject ) => {
 
 		if ( _initializeCompletePromise.isRejected() !== false ) {
 			log.assert( false, "script load failed!  investigate", { error: _initializeCompletePromise.reason() } );
 		}
+
+
+
+
 		//make sure our scripts api is loaded first
 		return _initializeCompletePromise.then(() => {
 
@@ -282,24 +286,25 @@ export function getDirections( request: google.maps.DirectionsRequest, retryAtte
 				//switch PlacesServiceStatus  from https://developers.google.com/maps/documentation/javascript/reference#AutocompleteService
 				switch ( status ) {
 					case google.maps.DirectionsStatus.OK:
-						return resolve( {result,status} );
+						return resolve( { result, status } );
 					case google.maps.DirectionsStatus.ZERO_RESULTS:
 					case google.maps.DirectionsStatus.NOT_FOUND:
-						return resolve( {result,status} );
+						return resolve( { result, status } );
 					case google.maps.DirectionsStatus.UNKNOWN_ERROR:
 						//try again
 						if ( retryAttempt > 2 ) {
 							return reject( new Error( `${ status }:The maps DirectionsService request could not be processed due to a server error.  We retried 3 times and now give up.` ) );
 						} else {
 							//retry with backoff
-							return Promise.delay( retryAttempt * 1000 ).then(() => { return getDirections( request, retryAttempt + 1 ); });
+							return Promise.delay( retryAttempt * 1000 ).then(() => { return getDirections( request, retryAttempt + 1 ); } );
 						}
 					case google.maps.DirectionsStatus.OVER_QUERY_LIMIT:
 						return reject( new Error( `${ status }:The application has gone over its request quota.` ) );
 					case google.maps.DirectionsStatus.REQUEST_DENIED:
 						return reject( new Error( `${ status }:The application is not allowed to use the DirectionsService.` ) );
 					case google.maps.DirectionsStatus.INVALID_REQUEST:
-						return reject( new Error( `${ status }:This request was invalid.` ) );
+						//return reject( new Error( `${ status }:This request was invalid.` ) );
+						return reject( new xlib.exception.Exception( `${ status }:This request was invalid.`, { data: { result, status } } ) );
 					default:
 						return reject( new Error( `${ status }:Unhandled status type.  please contact devs to investigate blib.mapsApi.getDirections() and provide them this error message.` ) );
 				}
@@ -318,8 +323,8 @@ export function getDirections( request: google.maps.DirectionsRequest, retryAtte
 				_directionsService = new google.maps.DirectionsService();
 			}
 
-			_directionsService.route( request, _callback );
 
+			_directionsService.route( request, _callback );
 
 
 

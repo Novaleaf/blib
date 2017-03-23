@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import * as React from 'react';
 export declare namespace reactstrap {
     type Sizes = 'xs' | 'xsmall' | 'sm' | 'small' | 'medium' | 'lg' | 'large';
@@ -289,16 +290,22 @@ export declare namespace reactstrap {
     type Tooltip = React.ClassicComponent<TooltipProps, {}>;
     var Tooltip: React.ClassicComponentClass<TooltipProps>;
     interface PopoverProps extends React.HTMLProps<Popover> {
-        arrowOffsetLeft?: number | string;
-        arrowOffsetTop?: number | string;
-        bsSize?: Sizes;
-        bsStyle?: string;
-        placement?: string;
-        positionLeft?: number | string;
-        positionTop?: number | string;
+        /** / boolean to control the state of the popover */
+        isOpen: boolean;
+        /** callback for toggling isOpen in the controlling component.  triggered when open and user clicks outside the popover. */
+        toggle?: () => void;
+        /** target div ID, popover is attached to this element */
+        target: string;
+        /** optionally overide tether config http://tether.io/#options */
+        tether?: any;
+        /** function which is passed a reference to the instance of tether for manually `position()`ing */
+        tetherRef?: (tether: any) => any;
+        placement: 'top' | 'bottom' | 'left' | 'right' | 'top left' | 'top center' | 'top right' | 'right top' | 'right middle' | 'right bottom' | 'bottom right' | 'bottom center' | 'bottom left' | 'left top' | 'left middle' | 'left bottom';
     }
     type Popover = React.ClassicComponent<PopoverProps, {}>;
     var Popover: React.ClassicComponentClass<PopoverProps>;
+    var PopoverTitle: React.ClassicComponentClass<{}>;
+    var PopoverContent: React.ClassicComponentClass<{}>;
     interface OverlayProps {
         animation?: any;
         container?: any;

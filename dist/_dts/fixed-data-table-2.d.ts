@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import * as React from "react";
 export declare namespace _fixedDataTable2 {
     var version: string;

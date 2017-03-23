@@ -1,3 +1,5 @@
+/// <reference types="react" />
+/// <reference types="bluebird" />
 import reactEco = require("./_index");
 import xlib = require("xlib");
 import Promise = xlib.promise.bluebird;
@@ -119,6 +121,7 @@ export declare function Card(props: {
 /**
  * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
  * great for async callback operations
+ * by default will show a dismissible popover when a rejected promise is returned.  this is configurable via props
  */
 export declare class SpinnerButton extends React.Component<{
     /** if you want an external process to control the load state, you can force unloaded state by setting props.isLoaded=false */
@@ -127,13 +130,27 @@ export declare class SpinnerButton extends React.Component<{
     disabled?: boolean;
     /** set this property to false to force the spinner to the "Loading" status, even if it's promise is resolved. */
     isLoaded?: boolean;
+    /** set the class of the underlying button */
     className?: string;
+    /** customize the error popover. if this is not set, we show the err.message by default.  return null or undefined to silently ignore the error */
+    customError?: (err: Error) => {
+        title: string | JSX.Element;
+        content: string | JSX.Element;
+    };
 }, {
     onClickPromise: Promise<any> & {
+        /** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/
         isMounted: boolean;
+    };
+    popoverOpen: boolean;
+    buttonId: string;
+    errDetails: {
+        title: string | JSX.Element;
+        content: string | JSX.Element;
     };
 }> {
     constructor(props: any);
+    /** inject the isMounted property onto the Promise */
     private _instrumentMountInfo(promise, isMounted);
     componentDidMount(): void;
     componentWillUnmount(): void;

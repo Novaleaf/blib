@@ -388,8 +388,8 @@ export module reduxHelpers {
 
 
 
-		//const history = ReactRouter.createMemoryHistory(); //this works, at least in chrome, but no hashtag for location hints.
-		const history = ReactRouter.hashHistory;//works, creates hash fragments to store location
+		//const history = ReactRouter.createMemoryHistory(); //this works, at least in chrome, but no hashtag for location hints.		
+		const history = ReactRouter.hashHistory as any;//works, creates hash fragments to store location //HACK BUGFIX: definitions issue so need to cast to any.  see https://github.com/DefinitelyTyped/DefinitelyTyped/issues/14537
 		/////////////// apply middleware
 		const middleware = Redux.applyMiddleware(
 

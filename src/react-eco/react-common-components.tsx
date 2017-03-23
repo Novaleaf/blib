@@ -90,7 +90,7 @@ export class EzModal extends React.Component<{ ref: string }, {
 	constructor( props: any ) {
 		super( props );
 		this.state = { isOpen: false, title: undefined, message: undefined, details: undefined, showOptions: {} };
-		log.deprecated(`${xlib.reflection.getTypeName(this)} is deprecated due to poor design.  use EzPopup instead`);
+		log.deprecated( `${ xlib.reflection.getTypeName( this ) } is deprecated due to poor design.  use EzPopup instead` );
 	}
 
 	//componentDidMount() {
@@ -106,14 +106,14 @@ export class EzModal extends React.Component<{ ref: string }, {
 		let buttonJsx: JSX.Element;
 
 		if ( this.state.showOptions == null ) {
-			throw log.error( "showOptions null", { state: this.state });
+			throw log.error( "showOptions null", { state: this.state } );
 		}
 
 		if ( this.state.showOptions.confirmButtonText == null ) {
 			buttonJsx = <ReactStrap.Button className="btn-primary" onClick={ this.CloseConfirm }> Close </ReactStrap.Button>;
 		} else {
 			buttonJsx = <span>
-			
+
 				<ReactStrap.Button onClick={ this.CloseCancel }>Cancel </ReactStrap.Button>
 				<ReactStrap.Button className="btn-primary" onClick={ this.CloseConfirm } > { this.state.showOptions.confirmButtonText } </ReactStrap.Button>
 			</span>
@@ -153,24 +153,24 @@ export class EzModal extends React.Component<{ ref: string }, {
 			this._modalClosePromise = xlib.promise._deprecated.CreateExposedPromise<void>();
 		}
 
-		this.setState( { isOpen: true, title, message, details, showOptions: options });
+		this.setState( { isOpen: true, title, message, details, showOptions: options } );
 
 		return this._modalClosePromise as Promise<void>;
 
 	}
 
-	public CloseConfirm =()=> {
+	public CloseConfirm = () => {
 		//log.assert(false);
-		this.setState( { isOpen: false });
+		this.setState( { isOpen: false } );
 		if ( this._modalClosePromise != null ) {
 			let tempPromise = this._modalClosePromise;
 			this._modalClosePromise = null;
 			tempPromise.resolve( undefined );
 		}
 	}
-	public CloseCancel=()=> {
+	public CloseCancel = () => {
 		//log.assert(false);
-		this.setState( { isOpen: false });
+		this.setState( { isOpen: false } );
 		if ( this._modalClosePromise != null ) {
 			let tempPromise = this._modalClosePromise;
 			this._modalClosePromise = null;
@@ -250,8 +250,8 @@ export module StripeCheckout {
 					var stripeCheckout = this.refs[ "reactStripeCheckout" ] as any;
 					//log.assert(false, "inspect", stripeCheckout);
 					stripeCheckout.showStripeDialog();
-				});
-			});
+				} );
+			} );
 
 			return this._showPromise;
 
@@ -281,7 +281,7 @@ export module StripeCheckout {
 					reconfigureOnUpdate={ true }
 					amount={ showOptions.amount }
 					closed={ this._checkoutClosed.bind( this ) }
-					> <button style={ { display: "none" } }></button>
+				> <button style={ { display: "none" } }></button>
 				</StripeCheckout>
 			);
 		}
@@ -300,7 +300,7 @@ export module StripeCheckout {
 					blib.googleAnalytics( "send", "event", "stripeCheckout", "cancel" );
 					return;
 				}
-			});
+			} );
 		}
 
 
@@ -310,7 +310,7 @@ export module StripeCheckout {
 			//setTimeout(() => {
 			//log.debug("EzStrieCheckout.onToken().timeout");
 			if ( this._showPromise != null && this._showPromise.isResolved() !== true ) {
-				this._showPromise.resolve( { stripeToken });
+				this._showPromise.resolve( { stripeToken } );
 				blib.googleAnalytics( "send", "event", "stripeCheckout", "finish" );
 				return;
 			}
@@ -327,7 +327,7 @@ export module StripeCheckout {
  *  bootstrap "Card" component
  * @param props
  */
-export function Card( props: { children?: React.ReactNode }) {
+export function Card( props: { children?: React.ReactNode } ) {
 	return (
 		<div className="card">
 			<div className="card-block">
@@ -342,6 +342,7 @@ export function Card( props: { children?: React.ReactNode }) {
 /**
  * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
  * great for async callback operations
+ * by default will show a dismissible popover when a rejected promise is returned.  this is configurable via props
  */
 export class SpinnerButton extends React.Component<{
 	/** if you want an external process to control the load state, you can force unloaded state by setting props.isLoaded=false */
@@ -350,8 +351,21 @@ export class SpinnerButton extends React.Component<{
 	disabled?: boolean;
 	/** set this property to false to force the spinner to the "Loading" status, even if it's promise is resolved. */
 	isLoaded?: boolean;
-	className?:string;
-}, { onClickPromise: Promise<any> & { /** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/ isMounted: boolean } }>{
+	/** set the class of the underlying button */
+	className?: string;
+	/** customize the error popover. if this is not set, we show the err.message by default.  return null or undefined to silently ignore the error */
+	customError?: ( err: Error ) => { title: string | JSX.Element; content: string | JSX.Element };
+}, {
+
+		onClickPromise: Promise<any> & {
+			/** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/
+			isMounted: boolean
+		},
+		popoverOpen: boolean;
+		buttonId: string;
+		errDetails: { title: string | JSX.Element; content: string | JSX.Element };
+
+	}>{
 
 	constructor( props: any ) {
 		super( props );
@@ -359,9 +373,13 @@ export class SpinnerButton extends React.Component<{
 		let onClickPromise = this._instrumentMountInfo( Promise.resolve(), false );
 		this.state = {
 			onClickPromise,
+			popoverOpen: false,
+			buttonId: `spinner_${ xlib.security.randomAsciiStringCrypto( 10 ) }`,
+			errDetails: { title: "", content: "" },
 		};
 	}
 
+	/** inject the isMounted property onto the Promise */
 	private _instrumentMountInfo( promise: Promise<any>, isMounted: boolean ) {
 		//let promiseTypeProxy = this.state.onClickPromise;
 		let toReturn = promise as Promise<any> & { /** internal helper used to track mounted state, to avoid firing additional callbacks if this component is no longer mounted*/ isMounted: boolean };
@@ -381,17 +399,23 @@ export class SpinnerButton extends React.Component<{
 
 	render() {
 
-		const {isLoaded, onClick, ...otherProps} = this.props;
+		const { isLoaded, onClick, customError, ...otherProps } = this.props;
+
 		return (
 
 			<button
+				id={ this.state.buttonId }
 				onClick={ this._onClick }
 				disabled={ this.state.onClickPromise.isResolved() === false || this.props.disabled === true || this.props.isLoaded === false }
+
 				{...otherProps}
-				>
+			>
 				<reactEco.ReactLoader loaded={ ( this.state.onClickPromise.isResolved() && this.props.isLoaded !== false ) } />
 				{ this.props.children }
-
+				<ReactStrap.Popover placement="bottom" isOpen={ this.state.popoverOpen } toggle={ () => { this.setState( { popoverOpen: !this.state.popoverOpen } as any ) } } target={ this.state.buttonId } >
+					<ReactStrap.PopoverTitle><span className="badge badge-danger">{ this.state.errDetails.title }</span></ReactStrap.PopoverTitle>
+					<ReactStrap.PopoverContent><div className="alert alert-danger" role="alert">{ this.state.errDetails.content }}</div></ReactStrap.PopoverContent>
+				</ReactStrap.Popover>
 			</button>
 
 		);
@@ -401,18 +425,31 @@ export class SpinnerButton extends React.Component<{
 	private _onClick = ( event: React.MouseEvent<HTMLButtonElement> ) => {
 		event.preventDefault();
 
-		let clickPromise = this.props.onClick( event );
+		let clickPromise = this.props.onClick( event )
+			.catch(( err: Error ) => {
+				//log.warn( "in on click catch", { currentTarget: event.currentTarget,  } );
+				let errDetails = this.props.customError == null ? {
+					title: ( <div>An Error Occured</div> ),
+					content: ( <div>{ err.message }</div> )
+				} : this.props.customError( err );
+				
+				if ( errDetails != null ) {					
+					this.setState( { popoverOpen: !this.state.popoverOpen, errDetails } as any );
+				}else{
+					//silently eat the error.
+				}
+			} );
 		let onClickPromise = this._instrumentMountInfo( clickPromise, this.state.onClickPromise.isMounted ); //re-store the current isMounted state
 
-		this.setState( { onClickPromise });
+		this.setState( { onClickPromise } as any );
 
 		onClickPromise.finally(() => {
 
 			if ( this.state.onClickPromise.isMounted === true ) {
 				//notify that our promise state has changed internally
-				this.setState( { onClickPromise });
+				this.setState( { onClickPromise } as any );
 			}
-		});
+		} );
 	};
 
 

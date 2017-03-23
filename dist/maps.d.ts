@@ -1,3 +1,4 @@
+/// <reference types="bluebird" />
 /// <reference types="googlemaps" />
 import * as xlib from "xlib";
 import Promise = xlib.promise.bluebird;

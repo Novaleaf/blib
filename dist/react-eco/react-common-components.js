@@ -212,13 +212,27 @@ exports.Card = Card;
 /**
  * a <Button> component that will disable itself and show a loader spinner while the onClick callback is in-progress
  * great for async callback operations
+ * by default will show a dismissible popover when a rejected promise is returned.  this is configurable via props
  */
 class SpinnerButton extends React.Component {
     constructor(props) {
         super(props);
         this._onClick = (event) => {
             event.preventDefault();
-            let clickPromise = this.props.onClick(event);
+            let clickPromise = this.props.onClick(event)
+                .catch((err) => {
+                //log.warn( "in on click catch", { currentTarget: event.currentTarget,  } );
+                let errDetails = this.props.customError == null ? {
+                    title: (React.createElement("div", null, "An Error Occured")),
+                    content: (React.createElement("div", null, err.message))
+                } : this.props.customError(err);
+                if (errDetails != null) {
+                    this.setState({ popoverOpen: !this.state.popoverOpen, errDetails });
+                }
+                else {
+                    //silently eat the error.
+                }
+            });
             let onClickPromise = this._instrumentMountInfo(clickPromise, this.state.onClickPromise.isMounted); //re-store the current isMounted state
             this.setState({ onClickPromise });
             onClickPromise.finally(() => {
@@ -231,8 +245,12 @@ class SpinnerButton extends React.Component {
         let onClickPromise = this._instrumentMountInfo(Promise.resolve(), false);
         this.state = {
             onClickPromise,
+            popoverOpen: false,
+            buttonId: `spinner_${xlib.security.randomAsciiStringCrypto(10)}`,
+            errDetails: { title: "", content: "" },
         };
     }
+    /** inject the isMounted property onto the Promise */
     _instrumentMountInfo(promise, isMounted) {
         //let promiseTypeProxy = this.state.onClickPromise;
         let toReturn = promise;
@@ -246,10 +264,17 @@ class SpinnerButton extends React.Component {
         this.state.onClickPromise.isMounted = false;
     }
     render() {
-        const _a = this.props, { isLoaded, onClick } = _a, otherProps = __rest(_a, ["isLoaded", "onClick"]);
-        return (React.createElement("button", Object.assign({ onClick: this._onClick, disabled: this.state.onClickPromise.isResolved() === false || this.props.disabled === true || this.props.isLoaded === false }, otherProps),
+        const _a = this.props, { isLoaded, onClick, customError } = _a, otherProps = __rest(_a, ["isLoaded", "onClick", "customError"]);
+        return (React.createElement("button", Object.assign({ id: this.state.buttonId, onClick: this._onClick, disabled: this.state.onClickPromise.isResolved() === false || this.props.disabled === true || this.props.isLoaded === false }, otherProps),
             React.createElement(reactEco.ReactLoader, { loaded: (this.state.onClickPromise.isResolved() && this.props.isLoaded !== false) }),
-            this.props.children));
+            this.props.children,
+            React.createElement(ReactStrap.Popover, { placement: "bottom", isOpen: this.state.popoverOpen, toggle: () => { this.setState({ popoverOpen: !this.state.popoverOpen }); }, target: this.state.buttonId },
+                React.createElement(ReactStrap.PopoverTitle, null,
+                    React.createElement("span", { className: "badge badge-danger" }, this.state.errDetails.title)),
+                React.createElement(ReactStrap.PopoverContent, null,
+                    React.createElement("div", { className: "alert alert-danger", role: "alert" },
+                        this.state.errDetails.content,
+                        "}")))));
     }
 }
 exports.SpinnerButton = SpinnerButton;

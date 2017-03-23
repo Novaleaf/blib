@@ -1,4 +1,4 @@
-//hack:  copied d.ts for ReactBootstrap as they have the same signatures, but reactstrap works with bootstrap4
+//hack:  copied d.ts for ReactBootstrap as they have mostly the same signatures, but reactstrap works with bootstrap4.  fixing definitions as needed.
 import * as React from 'react';
 
 
@@ -410,17 +410,36 @@ export declare namespace reactstrap {
 
     // <Popover/>
     interface PopoverProps extends React.HTMLProps<Popover> {
-        // Optional
-        arrowOffsetLeft?: number | string;
-        arrowOffsetTop?: number | string;
-        bsSize?: Sizes;
-        bsStyle?: string;
-        placement?: string;
-        positionLeft?: number | string; // String support added since v0.30.0
-        positionTop?: number | string; // String support added since v0.30.0
+        // // Optional
+        // arrowOffsetLeft?: number | string;
+        // arrowOffsetTop?: number | string;
+        // bsSize?: Sizes;
+        // bsStyle?: string;
+        // placement?: string;
+        // positionLeft?: number | string; // String support added since v0.30.0
+        // positionTop?: number | string; // String support added since v0.30.0
+
+        //fixed for ReactStrap on 20170314
+        /** / boolean to control the state of the popover */
+        isOpen: boolean;
+        /** callback for toggling isOpen in the controlling component.  triggered when open and user clicks outside the popover. */
+        toggle?: ()=>void;
+        /** target div ID, popover is attached to this element */
+        target:string;
+        /** optionally overide tether config http://tether.io/#options */
+        tether?:any;
+        /** function which is passed a reference to the instance of tether for manually `position()`ing */
+        tetherRef?:(tether:any)=>any;
+        placement:'top'|    'bottom'|    'left'|    'right'|    'top left'|    'top center'|    'top right'|    'right top'|    'right middle'|    'right bottom'|    'bottom right'|    'bottom center'|    'bottom left'|    'left top'|    'left middle'|    'left bottom';
     }
     type Popover = React.ClassicComponent<PopoverProps, {}>;
     var Popover: React.ClassicComponentClass<PopoverProps>;
+
+
+    // type PopoverTitle = React.ClassicComponent<{}, {}>;
+    // type PopoverContent = React.ClassicComponent<{}, {}>;
+    var PopoverTitle: React.ClassicComponentClass<{}>;
+    var PopoverContent: React.ClassicComponentClass<{}>;
 
     // <Overlay />
     interface OverlayProps {

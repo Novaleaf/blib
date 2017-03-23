@@ -221,8 +221,8 @@ var reduxHelpers;
         //_ezStates.push(authJwt.states.authState);
         //log.info("here");
         //console.log("here");
-        //const history = ReactRouter.createMemoryHistory(); //this works, at least in chrome, but no hashtag for location hints.
-        const history = ReactRouter.hashHistory; //works, creates hash fragments to store location
+        //const history = ReactRouter.createMemoryHistory(); //this works, at least in chrome, but no hashtag for location hints.		
+        const history = ReactRouter.hashHistory; //works, creates hash fragments to store location //HACK BUGFIX: definitions issue so need to cast to any.  see https://github.com/DefinitelyTyped/DefinitelyTyped/issues/14537
         /////////////// apply middleware
         const middleware = Redux.applyMiddleware(
         /** need to apply this to use the push method,  see: https://github.com/reactjs/react-router-redux#what-if-i-want-to-issue-navigation-events-via-redux-actions or https://github.com/reactjs/react-router-redux/issues/366 */
