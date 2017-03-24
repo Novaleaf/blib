@@ -27,7 +27,7 @@
     "@types/googlemaps": "3.26.4",
     "@types/jquery": "2.0.41",
     "@types/js-cookie": "2.0.28",
-    "@types/react": "0.14.55",
+    "@types/react": "15.0.0",
     "@types/react-bootstrap": "0.0.47",
     "@types/react-dom": "0.14.23",
     "@types/react-json-tree": "0.6.3",
